@@ -10,7 +10,7 @@ declare module 'react' {
     function useRef<T>(initial?: T): { current: T | null };
     function useCallback<T>(fn: T, deps?: any[]): T;
     function useMemo<T>(fn: () => T, deps?: any[]): T;
-    function useContext<T>(ctx: any): T;
+    function useContext(ctx: any): any;
     function createContext<T>(defaultValue?: T): any;
     function Fragment(props: any): any;
     function forwardRef<T, P = {}>(render: (props: P, ref: any) => any): any;
