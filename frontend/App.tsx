@@ -4,8 +4,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 import RootNavigator from './src/navigation/RootNavigator';
+import { navigationRef } from './src/navigation/navigationRef';
 import { ThemeProvider } from './src/theme/ThemeProvider';
 import { AuthProvider } from './src/auth/AuthContext';
+import { VisorProvider } from './src/visor/VisorContext';
+import SeelayVisor from './src/visor/SeelayVisor';
 
 export default function App() {
   return (
@@ -13,10 +16,13 @@ export default function App() {
       <SafeAreaProvider>
         <ThemeProvider>
           <AuthProvider>
-            <NavigationContainer>
-              <RootNavigator />
-              <StatusBar style="light" />
-            </NavigationContainer>
+            <VisorProvider>
+              <NavigationContainer ref={navigationRef}>
+                <RootNavigator />
+                <SeelayVisor />
+                <StatusBar style="light" />
+              </NavigationContainer>
+            </VisorProvider>
           </AuthProvider>
         </ThemeProvider>
       </SafeAreaProvider>
