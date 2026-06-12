@@ -1,0 +1,29 @@
+{
+  "name": "seelay",
+  "private": true,
+  "version": "0.1.0",
+  "description": "seelay full-stack movement-first social media app.",
+  "workspaces": [
+    "packages/*",
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:web dev:api",
+    "dev:web": "npm --workspace seelay-frontend run start",
+    "dev:api": "npm --workspace @seelay/api run dev",
+    "build": "npm --workspaces run build",
+    "lint": "npm --workspaces run lint",
+    "test": "npm --workspaces run test",
+    "db:generate": "npm --workspace @seelay/db run generate",
+    "db:migrate": "npm --workspace @seelay/db run migrate",
+    "db:studio": "npm --workspace @seelay/db run studio"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  }
+}

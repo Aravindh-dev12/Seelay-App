@@ -1,0 +1,9 @@
+export { registerAuthRoutes } from "./auth.js";
+export { registerContentRoutes } from "./content.js";
+export { registerDuelRoutes } from "./duels.js";
+export { registerWorldDropRoutes } from "./worldDrop.js";
+export { registerMotionMatchRoutes } from "./motionMatch.js";
+export { registerChatRoutes } from "./chats.js";
+export { registerStoreRoutes } from "./store.js";
+export { registerPaymentRoutes } from "./payments.js";
+export { registerAdminRoutes } from "./admin.js";

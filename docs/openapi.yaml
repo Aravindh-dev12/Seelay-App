@@ -1,0 +1,125 @@
+openapi: 3.1.0
+info:
+  title: qanbie API
+  version: 0.1.0
+  description: Movement-first social app API covering clips, duels, tokens, World Drop, Motion Match, chat, payments, and admin workflows.
+servers:
+  - url: http://localhost:4000
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200": { description: OK }
+  /auth/session:
+    post:
+      summary: Create a local demo or Firebase-backed session
+      responses:
+        "200": { description: Session created }
+  /auth/register:
+    post:
+      summary: Register a user with profile, wallet, settings, and demo session
+      responses:
+        "200": { description: User registered }
+  /me:
+    get:
+      summary: Current user profile, wallet, and Vibe DNA
+      responses:
+        "200": { description: Current user }
+  /me/settings:
+    get:
+      summary: Current user personalization and notification settings
+      responses:
+        "200": { description: Settings }
+    patch:
+      summary: Update personalization, privacy, motion, and notification settings
+      responses:
+        "200": { description: Settings updated }
+  /users:
+    get:
+      summary: List registered users
+      responses:
+        "200": { description: Users }
+  /clips:
+    post:
+      summary: Create a Mirror Moment clip
+      responses:
+        "200": { description: Clip created }
+  /clips/{id}/comments:
+    get:
+      summary: Open comment section for a clip
+      responses:
+        "200": { description: Comments }
+    post:
+      summary: Add comment to a clip
+      responses:
+        "200": { description: Comment created }
+  /clips/{id}/share-targets:
+    get:
+      summary: Available share targets and clip deep link
+      responses:
+        "200": { description: Share targets }
+  /clips/{id}/share:
+    post:
+      summary: Share a clip and reward Energy Tokens
+      responses:
+        "200": { description: Share recorded }
+  /clips/upload-url:
+    post:
+      summary: Create signed media upload URL
+      responses:
+        "200": { description: Upload URL }
+  /feed:
+    get:
+      summary: Ranked vertical clip feed
+      responses:
+        "200": { description: Feed items }
+  /challenges:
+    get:
+      summary: List active challenges
+      responses:
+        "200": { description: Challenge list }
+    post:
+      summary: Create admin challenge
+      responses:
+        "200": { description: Challenge created }
+  /duels:
+    post:
+      summary: Create a duel
+      responses:
+        "200": { description: Duel created }
+  /leaderboards:
+    get:
+      summary: Campus and challenge leaderboards
+      responses:
+        "200": { description: Leaderboard }
+  /world-drop/current:
+    get:
+      summary: Current Friday World Drop
+      responses:
+        "200": { description: World Drop }
+  /motion-match/suggestions:
+    get:
+      summary: Movement DNA match suggestions
+      responses:
+        "200": { description: Match suggestions }
+  /chats:
+    get:
+      summary: Chats unlocked by mutual Motion Match hearts
+      responses:
+        "200": { description: Chats }
+  /store/items:
+    get:
+      summary: Token and payment store items
+      responses:
+        "200": { description: Store items }
+  /payments/razorpay/order:
+    post:
+      summary: Create Razorpay order
+      responses:
+        "200": { description: Order created }
+  /admin/reports:
+    get:
+      summary: Moderation reports
+      responses:
+        "200": { description: Reports }
