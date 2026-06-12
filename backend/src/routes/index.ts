@@ -7,3 +7,4 @@ export { registerChatRoutes } from "./chats.js";
 export { registerStoreRoutes } from "./store.js";
 export { registerPaymentRoutes } from "./payments.js";
 export { registerAdminRoutes } from "./admin.js";
+export { registerVisorRoutes } from "./visor.js";

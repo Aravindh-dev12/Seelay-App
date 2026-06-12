@@ -13,6 +13,7 @@ import {
   registerStoreRoutes,
   registerPaymentRoutes,
   registerAdminRoutes,
+  registerVisorRoutes,
 } from "./routes/index.js";
 
 export function createApp() {
@@ -33,6 +34,7 @@ export function createApp() {
   registerStoreRoutes(app);
   registerPaymentRoutes(app);
   registerAdminRoutes(app);
+  registerVisorRoutes(app);
 
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof z.ZodError) return res.status(400).json({ error: "VALIDATION_ERROR", issues: err.issues });

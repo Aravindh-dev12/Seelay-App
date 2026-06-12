@@ -12,9 +12,10 @@ interface VisorContextValue {
   panelOpen: boolean;
   followMode: boolean;
   message: string;
+  isLoading: boolean;
   openPanel: () => void;
   closePanel: () => void;
-  ask: (text: string) => void;
+  ask: (text: string) => Promise<void>;
   startListening: () => void;
   toggleFollow: () => void;
 }
@@ -27,7 +28,10 @@ export function VisorProvider({ children }: { children: React.ReactNode }) {
   const [panelOpen, setPanelOpen] = useState(false);
   const [followMode, setFollowMode] = useState(false);
   const [message, setMessage] = useState('Tap me. I am Visor, your living guide.');
+  const [isLoading, setIsLoading] = useState(false);
   const greetedRef = useRef(false);
+  const historyRef = useRef<{ role: string; content: string }[]>([]);
+  const history = historyRef.current;
 
   const speak = useCallback((text: string) => {
     setExpression('speaking');
@@ -35,15 +39,24 @@ export function VisorProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const ask = useCallback(
-    (text: string) => {
+    async (text: string) => {
       setExpression('thinking');
+      setIsLoading(true);
       setMessage('...');
-      setTimeout(() => {
-        const reply = visorThink(text);
-        setMessage(reply.text);
-        speak(reply.text);
-        if (reply.navigateTo) navigateTo(reply.navigateTo);
-      }, 600);
+
+      const reply = await visorThink(text, history);
+      setIsLoading(false);
+      setMessage(reply.text);
+      speak(reply.text);
+
+      // Keep conversation history for context
+      history.push({ role: 'user', content: text });
+      history.push({ role: 'assistant', content: reply.text });
+      if (history.length > 20) {
+        historyRef.current = history.slice(-20);
+      }
+
+      if (reply.navigateTo) navigateTo(reply.navigateTo);
     },
     [speak],
   );
@@ -92,13 +105,14 @@ export function VisorProvider({ children }: { children: React.ReactNode }) {
       panelOpen,
       followMode,
       message,
+      isLoading,
       openPanel: () => setPanelOpen(true),
       closePanel: () => setPanelOpen(false),
       ask,
       startListening,
       toggleFollow,
     }),
-    [isSignedIn, expression, panelOpen, followMode, message, ask, startListening, toggleFollow],
+    [isSignedIn, expression, panelOpen, followMode, message, isLoading, ask, startListening, toggleFollow],
   );
 
   return <VisorContext.Provider value={value}>{children}</VisorContext.Provider>;

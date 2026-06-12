@@ -97,6 +97,11 @@ export const api = {
   // Notifications
   notifications: () => request('/notifications'),
 
+  // Visor AI
+  visorChat: (message: string, provider?: string, history?: { role: string; content: string }[]) =>
+    request('/visor/chat', { method: 'POST', body: JSON.stringify({ message, provider: provider ?? 'ollama', history }) }),
+  visorModels: () => request('/visor/models'),
+
   // Admin
   reports: () => request('/admin/reports'),
 };
