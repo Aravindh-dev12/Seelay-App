@@ -61,6 +61,7 @@ export function registerVisorRoutes(app: any) {
     const body = z.object({
       message: z.string().min(1),
       provider: z.enum(["ollama", "gemini"]).default("ollama"),
+      model: z.string().optional(),
       history: z.array(z.object({ role: z.string(), content: z.string() })).optional(),
     }).parse(req.body);
 
@@ -70,14 +71,14 @@ export function registerVisorRoutes(app: any) {
       const history: { role: "user" | "model"; parts: { text: string }[] }[] = [
         { role: "user", parts: [{ text: body.message }] },
       ];
-      replyText = await geminiChat(history, SEELAY_SYSTEM_PROMPT);
+      replyText = await geminiChat(history, SEELAY_SYSTEM_PROMPT, body.model);
     } else {
       const messages = [
         { role: "system" as const, content: SEELAY_SYSTEM_PROMPT },
         ...(body.history ?? []).map((h: { role: string; content: string }) => ({ role: h.role as "system" | "user" | "assistant", content: h.content })),
         { role: "user" as const, content: body.message },
       ];
-      replyText = await ollamaChat(messages, { temperature: 0.8, maxTokens: 256 });
+      replyText = await ollamaChat(messages, { model: body.model, temperature: 0.8, maxTokens: 256 });
     }
 
     const parsed = extractNavigation(replyText);
@@ -88,9 +89,9 @@ export function registerVisorRoutes(app: any) {
     try {
       const { ollamaListModels } = await import("../services/ollama.js");
       const models = await ollamaListModels();
-      ok(_req, res, { ollama: models, gemini: [process.env.GEMINI_MODEL ?? "gemini-2.0-flash"] });
+      ok(_req, res, { ollama: models, gemini: [process.env.GEMINI_MODEL ?? "gemini-2.5-flash-pro"] });
     } catch {
-      ok(_req, res, { ollama: [], gemini: [process.env.GEMINI_MODEL ?? "gemini-2.0-flash"] });
+      ok(_req, res, { ollama: [], gemini: [process.env.GEMINI_MODEL ?? "gemini-2.5-flash-pro"] });
     }
   }));
 }

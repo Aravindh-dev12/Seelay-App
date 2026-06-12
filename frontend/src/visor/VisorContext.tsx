@@ -31,7 +31,7 @@ export function VisorProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const greetedRef = useRef(false);
   const historyRef = useRef<{ role: string; content: string }[]>([]);
-  const history = historyRef.current;
+  const history = historyRef.current ?? [];
 
   const speak = useCallback((text: string) => {
     setExpression('speaking');

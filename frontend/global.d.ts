@@ -55,6 +55,7 @@ declare module 'react-native' {
   export const useColorScheme: any;
   export const useWindowDimensions: any;
   export const RefreshControl: any;
+  export const PanResponder: any;
   export type ViewStyle = any;
   export type TextStyle = any;
   export type ImageStyle = any;

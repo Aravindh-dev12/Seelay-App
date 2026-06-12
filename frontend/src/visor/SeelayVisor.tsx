@@ -6,8 +6,11 @@ import { colors, typography, spacing, shadows } from '../theme';
 import { useVisor } from './VisorContext';
 import type { VisorExpression } from './types';
 
-const VISOR_WIDTH = 84;
-const VISOR_HEIGHT = 52;
+const HEAD_W = 90;
+const HEAD_H = 56;
+const BODY_W = 32;
+const BODY_H = 28;
+const LIMB_W = 7;
 
 const EYE_COLORS: Record<VisorExpression, string> = {
   idle: colors.sand[0],
@@ -17,35 +20,39 @@ const EYE_COLORS: Record<VisorExpression, string> = {
 };
 
 export default function SeelayVisor() {
-  const { visible, expression, panelOpen, followMode, message, openPanel, closePanel, startListening, toggleFollow } =
+  const { visible, expression, panelOpen, followMode, message, isLoading, openPanel, closePanel, startListening, toggleFollow } =
     useVisor();
 
-  const window = Dimensions.get('window');
+  const win = Dimensions.get('window');
   const position = useRef(
-    new Animated.ValueXY({ x: window.width - VISOR_WIDTH - 16, y: window.height - 220 }),
+    new Animated.ValueXY({ x: win.width - HEAD_W - 20, y: win.height - 260 }),
   ).current;
   const pulse = useRef(new Animated.Value(1)).current;
   const eyeGlow = useRef(new Animated.Value(1)).current;
+  const armLeft = useRef(new Animated.Value(0)).current;
+  const armRight = useRef(new Animated.Value(0)).current;
+  const legLeft = useRef(new Animated.Value(0)).current;
+  const legRight = useRef(new Animated.Value(0)).current;
 
   // Breathing pulse so the Visor always feels alive.
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulse, { toValue: 1.06, duration: 1400, useNativeDriver: false }),
-        Animated.timing(pulse, { toValue: 1, duration: 1400, useNativeDriver: false }),
+        Animated.timing(pulse, { toValue: 1.05, duration: 1500, useNativeDriver: false }),
+        Animated.timing(pulse, { toValue: 1, duration: 1500, useNativeDriver: false }),
       ]),
     );
     loop.start();
     return () => loop.stop();
   }, [pulse]);
 
-  // Faster eye flicker while speaking or thinking.
+  // Eye flicker while speaking or thinking.
   useEffect(() => {
     if (expression === 'speaking' || expression === 'thinking') {
       const loop = Animated.loop(
         Animated.sequence([
-          Animated.timing(eyeGlow, { toValue: 0.3, duration: 220, useNativeDriver: false }),
-          Animated.timing(eyeGlow, { toValue: 1, duration: 220, useNativeDriver: false }),
+          Animated.timing(eyeGlow, { toValue: 0.35, duration: 200, useNativeDriver: false }),
+          Animated.timing(eyeGlow, { toValue: 1, duration: 200, useNativeDriver: false }),
         ]),
       );
       loop.start();
@@ -55,11 +62,49 @@ export default function SeelayVisor() {
     return undefined;
   }, [expression, eyeGlow]);
 
+  // Limb animations: arms wave, legs dangle when speaking.
+  useEffect(() => {
+    if (expression === 'speaking') {
+      const leftArm = Animated.loop(
+        Animated.sequence([
+          Animated.timing(armLeft, { toValue: -20, duration: 400, useNativeDriver: false }),
+          Animated.timing(armLeft, { toValue: 0, duration: 400, useNativeDriver: false }),
+        ]),
+      );
+      const rightArm = Animated.loop(
+        Animated.sequence([
+          Animated.timing(armRight, { toValue: 20, duration: 450, useNativeDriver: false }),
+          Animated.timing(armRight, { toValue: 0, duration: 450, useNativeDriver: false }),
+        ]),
+      );
+      const leftLeg = Animated.loop(
+        Animated.sequence([
+          Animated.timing(legLeft, { toValue: -8, duration: 350, useNativeDriver: false }),
+          Animated.timing(legLeft, { toValue: 0, duration: 350, useNativeDriver: false }),
+        ]),
+      );
+      const rightLeg = Animated.loop(
+        Animated.sequence([
+          Animated.timing(legRight, { toValue: 8, duration: 380, useNativeDriver: false }),
+          Animated.timing(legRight, { toValue: 0, duration: 380, useNativeDriver: false }),
+        ]),
+      );
+      leftArm.start(); rightArm.start(); leftLeg.start(); rightLeg.start();
+      return () => { leftArm.stop(); rightArm.stop(); leftLeg.stop(); rightLeg.stop(); };
+    }
+    // Reset limbs
+    Animated.timing(armLeft, { toValue: 0, duration: 300, useNativeDriver: false }).start();
+    Animated.timing(armRight, { toValue: 0, duration: 300, useNativeDriver: false }).start();
+    Animated.timing(legLeft, { toValue: 0, duration: 300, useNativeDriver: false }).start();
+    Animated.timing(legRight, { toValue: 0, duration: 300, useNativeDriver: false }).start();
+    return undefined;
+  }, [expression, armLeft, armRight, legLeft, legRight]);
+
   const pan = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_evt, gesture) => Math.abs(gesture.dx) + Math.abs(gesture.dy) > 6,
       onPanResponderMove: (_evt, gesture) => {
-        position.setValue({ x: gesture.moveX - VISOR_WIDTH / 2, y: gesture.moveY - VISOR_HEIGHT / 2 });
+        position.setValue({ x: gesture.moveX - HEAD_W / 2, y: gesture.moveY - HEAD_H - 40 });
       },
     }),
   ).current;
@@ -76,7 +121,7 @@ export default function SeelayVisor() {
           onResponderMove={(evt) => {
             const { pageX, pageY } = evt.nativeEvent;
             Animated.spring(position, {
-              toValue: { x: pageX - VISOR_WIDTH / 2, y: pageY - VISOR_HEIGHT - 24 },
+              toValue: { x: pageX - HEAD_W / 2, y: pageY - HEAD_H - 40 },
               useNativeDriver: false,
               speed: 30,
               bounciness: 6,
@@ -88,7 +133,7 @@ export default function SeelayVisor() {
       {panelOpen ? (
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>VISOR</Text>
-          <Text style={styles.panelMessage}>{message}</Text>
+          <Text style={styles.panelMessage}>{isLoading ? 'Thinking...' : message}</Text>
           <View style={styles.panelActions}>
             <TouchableOpacity style={styles.actionBtn} onPress={startListening}>
               <Ionicons name="mic" size={20} color={EYE_COLORS[expression]} />
@@ -108,24 +153,66 @@ export default function SeelayVisor() {
 
       <Animated.View
         {...pan.panHandlers}
-        style={[styles.visorWrap, { transform: [{ translateX: position.x }, { translateY: position.y }, { scale: pulse }] }]}
+        style={[{
+          position: 'absolute',
+          transform: [
+            { translateX: position.x },
+            { translateY: position.y },
+            { scale: pulse },
+          ],
+        }]}
       >
         <TouchableOpacity activeOpacity={0.85} onPress={() => (panelOpen ? closePanel() : openPanel())}>
-          <LinearGradient
-            colors={colors.sand}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.visorShell}
-          >
-            <View style={styles.visorBand}>
-              <Animated.View
-                style={[styles.eye, { backgroundColor: EYE_COLORS[expression], opacity: eyeGlow }]}
-              />
-              <Animated.View
-                style={[styles.eye, { backgroundColor: EYE_COLORS[expression], opacity: eyeGlow }]}
-              />
+          {/* CHARACTER ROOT */}
+          <View style={styles.character}>
+            {/* LEFT ARM */}
+            <Animated.View style={[styles.armLeft, { transform: [{ rotate: armLeft.interpolate({ inputRange: [-20, 0], outputRange: ['-20deg', '0deg'] }) }] }]}>
+              <LinearGradient colors={colors.sand} style={styles.limbGradient} />
+              <View style={styles.hand} />
+            </Animated.View>
+
+            {/* RIGHT ARM */}
+            <Animated.View style={[styles.armRight, { transform: [{ rotate: armRight.interpolate({ inputRange: [0, 20], outputRange: ['0deg', '20deg'] }) }] }]}>
+              <LinearGradient colors={colors.sand} style={styles.limbGradient} />
+              <View style={styles.hand} />
+            </Animated.View>
+
+            {/* HEAD */}
+            <LinearGradient
+              colors={colors.sand}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.headShell}
+            >
+              <View style={styles.headBand}>
+                {/* LEFT EYE */}
+                <Animated.View style={[styles.eye, { backgroundColor: EYE_COLORS[expression], opacity: eyeGlow }]}>
+                  <View style={styles.eyePupil} />
+                </Animated.View>
+                {/* RIGHT EYE */}
+                <Animated.View style={[styles.eye, { backgroundColor: EYE_COLORS[expression], opacity: eyeGlow }]}>
+                  <View style={styles.eyePupil} />
+                </Animated.View>
+              </View>
+            </LinearGradient>
+
+            {/* BODY */}
+            <LinearGradient colors={colors.ash} style={styles.body}>
+              <View style={styles.bodyCore} />
+            </LinearGradient>
+
+            {/* LEGS */}
+            <View style={styles.legsRow}>
+              <Animated.View style={[styles.leg, { transform: [{ rotate: legLeft.interpolate({ inputRange: [-8, 0], outputRange: ['-8deg', '0deg'] }) }] }]}>
+                <LinearGradient colors={colors.copper} style={styles.limbGradient} />
+                <View style={styles.foot} />
+              </Animated.View>
+              <Animated.View style={[styles.leg, { transform: [{ rotate: legRight.interpolate({ inputRange: [0, 8], outputRange: ['0deg', '8deg'] }) }] }]}>
+                <LinearGradient colors={colors.copper} style={styles.limbGradient} />
+                <View style={styles.foot} />
+              </Animated.View>
             </View>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -137,32 +224,109 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.05)',
   },
-  visorWrap: {
-    position: 'absolute',
-    width: VISOR_WIDTH,
-    height: VISOR_HEIGHT,
+  character: {
+    alignItems: 'center',
+    width: HEAD_W + 40,
     ...shadows.elevated,
   },
-  visorShell: {
-    width: VISOR_WIDTH,
-    height: VISOR_HEIGHT,
-    borderRadius: VISOR_HEIGHT / 2,
-    padding: 5,
+  headShell: {
+    width: HEAD_W,
+    height: HEAD_H,
+    borderRadius: HEAD_H / 2,
+    padding: 4,
     justifyContent: 'center',
+    zIndex: 2,
   },
-  visorBand: {
+  headBand: {
     flex: 1,
-    borderRadius: (VISOR_HEIGHT - 10) / 2,
+    borderRadius: (HEAD_H - 8) / 2,
     backgroundColor: '#0a0a0e',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
+    gap: 14,
   },
   eye: {
-    width: 12,
-    height: 12,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  eyePupil: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: '#000',
+  },
+  body: {
+    width: BODY_W,
+    height: BODY_H,
+    borderRadius: 10,
+    marginTop: -6,
+    padding: 2,
+    zIndex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bodyCore: {
+    width: BODY_W - 8,
+    height: BODY_H - 8,
     borderRadius: 6,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  armLeft: {
+    position: 'absolute',
+    left: -12,
+    top: 10,
+    alignItems: 'center',
+    height: 44,
+    width: LIMB_W,
+    zIndex: 1,
+  },
+  armRight: {
+    position: 'absolute',
+    right: -12,
+    top: 10,
+    alignItems: 'center',
+    height: 44,
+    width: LIMB_W,
+    zIndex: 1,
+  },
+  limbGradient: {
+    width: LIMB_W,
+    height: 34,
+    borderRadius: LIMB_W / 2,
+  },
+  hand: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.sand[1],
+    marginTop: -2,
+  },
+  legsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: -4,
+    zIndex: 0,
+  },
+  leg: {
+    alignItems: 'center',
+    height: 38,
+    width: LIMB_W,
+  },
+  foot: {
+    width: 12,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.copper[1],
+    marginTop: -2,
   },
   panel: {
     position: 'absolute',

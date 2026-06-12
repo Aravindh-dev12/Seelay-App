@@ -10,14 +10,14 @@ export async function visorThink(
   history: { role: string; content: string }[] = []
 ): Promise<VisorReply> {
   try {
-    const response = (await api.visorChat(input, 'ollama', history)) as VisorReply;
+    const response = (await api.visorChat(input, 'ollama', undefined, history)) as VisorReply;
     return {
       text: response.text ?? 'I heard you. Let me think on that.',
       navigateTo: response.navigateTo,
     };
   } catch {
     return {
-      text: 'My AI core is waking up. Make sure Ollama is running locally (ollama run llama3.1) or Gemini API key is set.',
+      text: 'My AI core is waking up. Make sure Ollama is running locally (ollama run gemma4:12b) or your Gemini API key is set.',
     };
   }
 }

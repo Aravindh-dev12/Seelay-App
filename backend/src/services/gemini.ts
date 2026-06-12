@@ -1,11 +1,11 @@
 /**
  * Google Gemini API client for Seelay Visor.
  * Set GEMINI_API_KEY in your environment.
- * Uses the Gemini 2.0 Flash model by default for speed + quality.
+ * Uses the Gemini 2.5 Flash Pro model by default for speed + quality.
  */
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY ?? "";
-const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash-pro";
 
 export interface GeminiMessage {
   role: "user" | "model";
@@ -14,13 +14,15 @@ export interface GeminiMessage {
 
 export async function geminiChat(
   history: GeminiMessage[],
-  systemInstruction?: string
+  systemInstruction?: string,
+  model?: string
 ): Promise<string> {
   if (!GEMINI_API_KEY) {
     throw new Error("GEMINI_API_KEY not set");
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const useModel = model ?? GEMINI_MODEL;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${useModel}:generateContent?key=${GEMINI_API_KEY}`;
 
   const body: any = { contents: history };
   if (systemInstruction) {

@@ -2,11 +2,11 @@
  * Ollama client for local open-source LLM inference.
  * Requires Ollama running locally (or on a reachable server).
  * Install Ollama: https://ollama.com
- * Pull a model: ollama pull llama3.1
+ * Pull a model: ollama pull gemma4:12b
  */
 
 const OLLAMA_BASE_URL = process.env.OLLAMA_URL ?? "http://localhost:11434";
-const DEFAULT_MODEL = process.env.OLLAMA_MODEL ?? "llama3.1";
+const DEFAULT_MODEL = process.env.OLLAMA_MODEL ?? "gemma4:12b";
 
 export interface OllamaChatMessage {
   role: "system" | "user" | "assistant";
