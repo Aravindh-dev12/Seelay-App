@@ -1,6 +1,6 @@
-# qanbie
+# seelay
 
-qanbie is a movement-first social media platform: the body is the interface, clips are created through motion, and identity is built through duels, Life Stamps, Vibe DNA, Energy Tokens, World Drop, and Motion Match.
+seelay is a movement-first social media platform: the body is the interface, clips are created through motion, and identity is built through duels, Life Stamps, Vibe DNA, Energy Tokens, World Drop, and Motion Match.
 
 This repository is a production-style full-stack scaffold covering the frontend, backend, database, API contracts, workflows, and launch-ready architecture. The v1 AI/media layer is intentionally simulation-first: the code exposes stable production interfaces for motion scoring, Vibe DNA, Sound Alchemy, and compatibility so real ML models can replace the simulation without changing product flows.
 
