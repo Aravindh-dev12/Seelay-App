@@ -13,8 +13,13 @@ import VibeDNADetailScreen from '../screens/identity/VibeDNADetailScreen';
 import SoundAlchemyScreen from '../screens/identity/SoundAlchemyScreen';
 import AlterEgoScreen from '../screens/identity/AlterEgoScreen';
 import EnergyTokensScreen from '../screens/identity/EnergyTokensScreen';
+import SignInScreen from '../screens/auth/SignInScreen';
+import SignUpScreen from '../screens/auth/SignUpScreen';
+import { useAuth } from '../auth/AuthContext';
 
 export type RootStackParamList = {
+  SignIn: undefined;
+  SignUp: undefined;
   MainTabs: undefined;
   Chat: { chatId: string; participantName: string };
   DuelRoom: { duelId: string };
@@ -34,6 +39,8 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
+  const { isSignedIn } = useAuth();
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -41,20 +48,29 @@ export default function RootNavigator() {
         contentStyle: { backgroundColor: '#000000' },
       }}
     >
-      <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
-      <Stack.Screen name="Chat" component={ChatScreen} />
-      <Stack.Screen name="DuelRoom" component={DuelRoomScreen} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
-      <Stack.Screen name="Store" component={StoreScreen} />
-      <Stack.Screen name="LifeStamps" component={LifeStampsScreen} />
-      <Stack.Screen name="Notifications" component={NotificationsScreen} />
-      <Stack.Screen name="Search" component={SearchScreen} />
-      <Stack.Screen name="MotionMatch" component={MotionMatchScreen} />
-      <Stack.Screen name="Identity" component={IdentityHubScreen} />
-      <Stack.Screen name="VibeDNA" component={VibeDNADetailScreen} />
-      <Stack.Screen name="SoundAlchemy" component={SoundAlchemyScreen} />
-      <Stack.Screen name="AlterEgo" component={AlterEgoScreen} />
-      <Stack.Screen name="EnergyTokens" component={EnergyTokensScreen} />
+      {!isSignedIn ? (
+        <>
+          <Stack.Screen name="SignIn" component={SignInScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+        </>
+      ) : (
+        <>
+          <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
+          <Stack.Screen name="Chat" component={ChatScreen} />
+          <Stack.Screen name="DuelRoom" component={DuelRoomScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen name="Store" component={StoreScreen} />
+          <Stack.Screen name="LifeStamps" component={LifeStampsScreen} />
+          <Stack.Screen name="Notifications" component={NotificationsScreen} />
+          <Stack.Screen name="Search" component={SearchScreen} />
+          <Stack.Screen name="MotionMatch" component={MotionMatchScreen} />
+          <Stack.Screen name="Identity" component={IdentityHubScreen} />
+          <Stack.Screen name="VibeDNA" component={VibeDNADetailScreen} />
+          <Stack.Screen name="SoundAlchemy" component={SoundAlchemyScreen} />
+          <Stack.Screen name="AlterEgo" component={AlterEgoScreen} />
+          <Stack.Screen name="EnergyTokens" component={EnergyTokensScreen} />
+        </>
+      )}
     </Stack.Navigator>
   );
 }

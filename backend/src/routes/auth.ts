@@ -89,6 +89,22 @@ export function registerAuthRoutes(app: any) {
 
   app.get("/me/settings", asyncHandler((req: Request, res: Response) => ok(req, res, settingsMap.get(currentUser(req).id))));
 
+  app.delete("/me", asyncHandler((req: Request, res: Response) => {
+    const user = currentUser(req);
+    const index = users.findIndex((item) => item.id === user.id);
+    if (index === -1) return void res.status(404).json({ error: "USER_NOT_FOUND" });
+    users.splice(index, 1);
+    wallets.delete(user.id);
+    settingsMap.delete(user.id);
+    for (const clip of clips) {
+      if (clip.creator.id === user.id) {
+        clip.creator.displayName = "Deleted User";
+        clip.creator.username = "deleted";
+      }
+    }
+    ok(req, res, { deleted: true });
+  }));
+
   app.get("/users", asyncHandler((req: Request, res: Response) => ok(req, res, users)));
 
   app.get("/users/:id", asyncHandler((req: Request, res: Response) => {
