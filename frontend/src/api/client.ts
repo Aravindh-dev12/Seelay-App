@@ -30,6 +30,7 @@ export const api = {
   updateSettings: (data: Record<string, unknown>) =>
     request('/me/settings', { method: 'PATCH', body: JSON.stringify(data) }),
   settings: () => request('/me/settings'),
+  deleteAccount: () => request('/me', { method: 'DELETE' }),
 
   // Users
   users: () => request('/users'),
