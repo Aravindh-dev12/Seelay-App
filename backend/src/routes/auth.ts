@@ -9,6 +9,7 @@ import { simulateVibeDna } from "../simulation.js";
 import { verifyFirebaseToken } from "../services/firebase.js";
 import { trackLogin, trackSignup } from "../services/analytics.js";
 
+
 export function registerAuthRoutes(app: any) {
   app.post("/auth/session", asyncHandler(async (req: Request, res: Response) => {
     const body = z.object({ provider: z.enum(["firebase", "demo"]), token: z.string().optional() }).parse(req.body);
