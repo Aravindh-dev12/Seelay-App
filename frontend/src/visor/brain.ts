@@ -14,6 +14,7 @@ export async function visorThink(
     return {
       text: response.text ?? 'I heard you. Let me think on that.',
       navigateTo: response.navigateTo,
+      providerUsed: response.providerUsed,
     };
   } catch {
     return {

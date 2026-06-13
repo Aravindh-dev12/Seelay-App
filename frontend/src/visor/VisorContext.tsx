@@ -13,6 +13,7 @@ interface VisorContextValue {
   followMode: boolean;
   message: string;
   isLoading: boolean;
+  providerUsed?: string;
   openPanel: () => void;
   closePanel: () => void;
   ask: (text: string) => Promise<void>;
@@ -29,6 +30,7 @@ export function VisorProvider({ children }: { children: React.ReactNode }) {
   const [followMode, setFollowMode] = useState(false);
   const [message, setMessage] = useState('Tap me. I am Visor, your living guide.');
   const [isLoading, setIsLoading] = useState(false);
+  const [providerUsed, setProviderUsed] = useState<string | undefined>(undefined);
   const greetedRef = useRef(false);
   const historyRef = useRef<{ role: string; content: string }[]>([]);
   const history = historyRef.current ?? [];
@@ -47,6 +49,7 @@ export function VisorProvider({ children }: { children: React.ReactNode }) {
       const reply = await visorThink(text, history);
       setIsLoading(false);
       setMessage(reply.text);
+      setProviderUsed(reply.providerUsed);
       speak(reply.text);
 
       // Keep conversation history for context
@@ -106,19 +109,20 @@ export function VisorProvider({ children }: { children: React.ReactNode }) {
       followMode,
       message,
       isLoading,
+      providerUsed,
       openPanel: () => setPanelOpen(true),
       closePanel: () => setPanelOpen(false),
       ask,
       startListening,
       toggleFollow,
     }),
-    [isSignedIn, expression, panelOpen, followMode, message, isLoading, ask, startListening, toggleFollow],
+    [isSignedIn, expression, panelOpen, followMode, message, isLoading, providerUsed, ask, startListening, toggleFollow],
   );
 
   return <VisorContext.Provider value={value}>{children}</VisorContext.Provider>;
 }
 
-export function useVisor() {
+export function useVisor(): VisorContextValue {
   const ctx = useContext(VisorContext);
   if (!ctx) throw new Error('useVisor must be used within VisorProvider');
   return ctx;

@@ -15,6 +15,17 @@ declare module 'react' {
     function Fragment(props: any): any;
     function forwardRef<T, P = {}>(render: (props: P, ref: any) => any): any;
     function memo<T>(component: T): T;
+    class Component<P = {}, S = {}> {
+      constructor(props: P);
+      state: S;
+      props: P;
+      context: any;
+      refs: any;
+      setState(state: S | ((prev: S, props: P) => S)): void;
+      forceUpdate(): void;
+      render(): ReactElement | null;
+    }
+    type ErrorInfo = any;
     type ReactNode = any;
     type ReactElement = any;
     type ComponentType<P = {}> = any;

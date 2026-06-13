@@ -53,3 +53,12 @@ export async function ollamaListModels(): Promise<string[]> {
   const json = await res.json();
   return (json.models ?? []).map((m: any) => m.name as string);
 }
+
+export async function ollamaIsHealthy(): Promise<boolean> {
+  try {
+    const res = await fetch(`${OLLAMA_BASE_URL}/api/tags`, { method: "GET", signal: AbortSignal.timeout(3000) });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

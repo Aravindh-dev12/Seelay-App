@@ -3,6 +3,7 @@ export type VisorExpression = 'idle' | 'listening' | 'thinking' | 'speaking';
 export interface VisorReply {
   text: string;
   navigateTo?: string;
+  providerUsed?: string;
 }
 
 /**

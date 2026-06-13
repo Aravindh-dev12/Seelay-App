@@ -7,7 +7,7 @@
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "dark",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
@@ -24,7 +24,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#000000"
       },
       "package": "com.seelay.app",
@@ -37,7 +37,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./assets/favicon.ico",
       "bundler": "metro"
     },
     "plugins": [
@@ -48,10 +48,6 @@
         }
       ]
     ],
-    "extra": {
-      "eas": {
-        "projectId": "seelay-mobile-project"
-      }
-    }
+    "extra": {}
   }
 }
