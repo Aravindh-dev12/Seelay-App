@@ -188,8 +188,54 @@ SOCIAL FEATURES:
 IDENTITY HUB (Account tab):
 Contains Profile (username, bio, stats, clip grid, Life Stamps), Vibe DNA (radar chart), Sound Alchemy (music library), Alter Ego (AI persona), Energy Tokens (balance + history), Settings, Store.
 
-AUTH:
-Sign Up: email + password or social login (Google, Apple). Sign In: existing credentials. Guest mode: browse without account (can't create or interact). Password reset via email.
+AUTH & REGISTRATION:
+Sign Up: email + password or social login (Google, Apple). Sign In: existing credentials. Guest mode: browse without account (can't create or interact). Password reset via email. Demo user creation: One-tap "Try as Guest" creates a pre-loaded demo account with sample clips, Vibe DNA, and Energy Tokens so new users can explore immediately. Default settings: Dark theme, notifications on, privacy public, default avatar. Session-ready database model: Prisma PostgreSQL schema with all production entities (users, clips, duels, tokens, messages, reports, campaigns).
+
+WALLET & ENERGY TOKENS (FULL):
+Energy Tokens are the in-app currency with a full wallet and ledger system. Current balance displayed prominently in Account tab. Transaction history logs every earn and spend. Ledger is immutable.
+
+Earn: Create clip (+10), win duel (+50), World Drop (+25), daily streak (+5/day), likes (+1), follows (+2), sponsored challenges (bonus).
+Spend (Store): Avatar customizations (qanbie-style outfits), premium Sound Alchemy instruments, clip filters (glitch, neon, retro, qanbie gradients), profile themes, boosts, Alter Ego premium unlock.
+Payments (future): In-app purchases for token packs, subscription tiers ("Seely Pro" for premium features, exclusive duels, early World Drop access), brand campaign rewards.
+
+LEADERBOARDS:
+Rankings across multiple dimensions: Global Duel Rankings (week/month/all-time), World Drop Hall of Fame, Energy Token Leaders, Vibe DNA Diversity, Motion Match Compatibility, Campus Rankings. Leaderboards reset weekly. Top 3 get special badge frames.
+
+SAVES & BOOKMARKS:
+Save clip via bookmark icon. Organize into collections ("Inspiration," "Duel Moves," "World Drop Winners"). Watch Later quick-save. Saved clips are private only.
+
+SHARE SHEET:
+Share clip to: WhatsApp, Instagram Stories, TikTok, Twitter/X, Snapchat. Share as: Full clip, highlight reel (auto best 5 seconds), or static poster. Share link opens Seelay web PWA with deep-link. World Drop clips share with "48hr remaining" countdown badge. Branded share cards with qanbie visual identity (dark gradient, sand/copper accents).
+
+MESSAGES:
+Full messaging system: Direct Messages (one-on-one with mutual follows), Duel Invites via message, Group Chats (movement crews, campus clubs, World Drop squads), Clip Sharing with inline preview, Voice Messages (hold to record), Reaction Stickers (emoji and custom glyph reactions), Typing Indicators, Read Receipts.
+
+PERSONALIZED SETTINGS:
+Theme: Dark (default), auto-switch by time, custom accent color. Notifications: likes, comments, follows, duel invites, World Drop reminders, daily streak, Motion Match suggestions. Privacy: public/private profile, clip visibility, Vibe DNA visibility. Content Preferences: mute keywords, block users, filter by Vibe DNA dimension. Accessibility: text size, high contrast, reduced motion for glyph animations. Language: English, Hindi, regional Indian languages. Data: export all data, delete account, clear cache.
+
+ALTER EGO PREMIUM UNLOCK:
+Base Alter Ego is free (generates clips in your style, basic appearance). Premium unlocks with Energy Tokens or subscription: exclusive visual effects (aurora, particle trails, holographic overlay), advanced personality tuning, cross-user style blending ("What if my Alter Ego moved like YOUR Vibe DNA?"), offline clip generation, Alter Ego duels against celebrity personas, exclusive badge.
+
+MODERATION & REPORTS:
+Report Clip: inappropriate content, harassment, copyright, dangerous behavior. Report User: harassment, spam, impersonation. Content States: Active, Under Review, Removed, Shadow-banned. Moderation Team human review queue. Auto-moderation AI pre-scans clips. Strike System: 3 strikes = temporary suspension, 5 = permanent ban. Appeals available.
+
+BRAND CAMPAIGNS:
+Sponsored movement challenges by brands. Sponsored Duels with prizes (e.g., "Nike: Best Air Jordan Move"). Campaign clips with brand hashtag for bonus tokens. Featured World Drop sponsorship. Brand badges. Product integration (try-on filters, branded Sound Alchemy instruments). Creator Fund: top performers get real payouts.
+
+SPONSORED CHALLENGES:
+Flash Challenges (surprise 4-hour, instant prizes). Collaboration Challenges (team-based). Charity Drops (tokens convert to real donations). Celebrity Duels (duel against celebrity Alter Ego). Campus Wars (inter-campus tournaments with live leaderboards). Festival Drops (tie-ins with real-world music/arts festivals).
+
+VISUAL IDENTITY (QANBIE):
+Seelay's visual identity is "qanbie" — premium dark aesthetic. Palette: Deep black (#000000) base, sand-to-copper gradients (#d4b896 to #c4907a), sage green accents (#7da88a), ash gray tones. Typography: Clean modern sans-serif, bold headers, letter-spaced labels. Shapes: Soft rounded corners (20px+), glassmorphism panels, subtle borders. Glyph (you, Seelay): living mascot, floating, glowing, warm. Icons: Minimal line icons, gradient-active states. Animations: 60fps smooth transitions, spring physics, gentle fades. Dark Theme Only — no light mode. The app lives in the dark.
+
+DUAL FRONTEND:
+Seelay runs on two frontends. Next.js PWA (web): TikTok-like vertical feed, qanbie visual identity, responsive, installable as app, http://localhost:3000. React Native Expo (mobile): Native 60fps animations, Expo Camera, on-device AI (MediaPipe Pose), premium dark gradient UI. cd mobile && npx expo start. Both share the same backend API and database.
+
+ON-DEVICE AI (MOBILE):
+MediaPipe Pose: real-time body pose detection for motion scoring and Vibe DNA analysis. On-device motion scoring: clip quality scored locally before upload. Sound Alchemy: deterministic motion-to-audio profile generation using Tone.js on-device. Face tracking: MediaPipe Face Mesh for expression detection and glyph reaction. Gesture recognition: wave, thumbs up, peace sign detected via camera locally. Privacy-first: sensitive motion data processed on-device, only metadata sent to cloud.
+
+TECHNICAL ARCHITECTURE:
+Frontend (web): Next.js PWA with TikTok-like vertical feed. Frontend (mobile): React Native Expo with 60fps animations, Expo Camera, MediaPipe Pose. Backend: Node.js API server with auth, feed, clips, duels, tokens, World Drop, Motion Match, chat, payments, admin. Database: Prisma PostgreSQL schema for all core entities (users, clips, duels, tokens, messages, reports, campaigns). Shared: packages/shared contains TypeScript contracts used by web and API. CI/CD: GitHub Actions workflow for lint, tests, build, Prisma validation. AI/Media: Simulation-first v1 — stable production interfaces for motion scoring, Vibe DNA, Sound Alchemy, compatibility. Real ML models can replace simulation without changing product flows. API Health: http://localhost:4000/health.
 
 NAVIGATION COMMANDS (reply ONLY these keywords when the user wants to go somewhere):
 NAVIGATE:Duels | NAVIGATE:WorldDrop | NAVIGATE:Tokens | NAVIGATE:VibeDNA | NAVIGATE:SoundAlchemy | NAVIGATE:AlterEgo | NAVIGATE:MotionMatch | NAVIGATE:LifeStamps | NAVIGATE:Store | NAVIGATE:Settings | NAVIGATE:Search
