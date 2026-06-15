@@ -1,14 +1,14 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { View, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import * as Haptics from 'expo-haptics';
 
 import FeedScreen from '../screens/feed/FeedScreen';
 import DuelsScreen from '../screens/duels/DuelsScreen';
 import WorldDropScreen from '../screens/worlddrop/WorldDropScreen';
 import SocialHubScreen from '../screens/social/SocialHubScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
-import { colors } from '../theme';
+import { colors, typography } from '../theme';
 
 export type BottomTabParamList = {
   Home: undefined;
@@ -18,50 +18,61 @@ export type BottomTabParamList = {
   Account: undefined;
 };
 
-const Tab = createBottomTabNavigator<BottomTabParamList>();
+const Tab = createBottomTabNavigator();
 
-const tabIcons: Record<string, { active: keyof typeof Ionicons.glyphMap; inactive: keyof typeof Ionicons.glyphMap }> = {
-  Home: { active: 'home', inactive: 'home-outline' },
-  Duels: { active: 'flash', inactive: 'flash-outline' },
-  Drop: { active: 'globe', inactive: 'globe-outline' },
-  Connect: { active: 'people', inactive: 'people-outline' },
-  Account: { active: 'person', inactive: 'person-outline' },
+const tabIcons: Record<string, { active: keyof typeof Ionicons.glyphMap; inactive: keyof typeof Ionicons.glyphMap; label: string }> = {
+  Home: { active: 'home', inactive: 'home-outline', label: 'Home' },
+  Duels: { active: 'flash', inactive: 'flash-outline', label: 'Duels' },
+  Drop: { active: 'globe', inactive: 'globe-outline', label: 'Drop' },
+  Connect: { active: 'people', inactive: 'people-outline', label: 'Connect' },
+  Account: { active: 'person', inactive: 'person-outline', label: 'You' },
 };
 
-function TabIcon({ name, color, size, focused }: { name: string; color: string; size: number; focused: boolean }) {
-  const icons = tabIcons[name];
-  if (!icons) return null;
-  
-  if (focused) {
-    return (
-      <LinearGradient
-        colors={colors.sand}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.activeIconBg}
-      >
-        <Ionicons name={icons.active} size={22} color="#0a0a0a" />
-      </LinearGradient>
-    );
-  }
-  
-  return <Ionicons name={icons.inactive} size={size} color={color} />;
+function FloatingTabBar({ state, navigation }: any) {
+  return (
+    <View pointerEvents="box-none" style={styles.tabBarWrapper}>
+      <View style={styles.tabBarBlur}>
+        <View style={styles.tabBarInner}>
+          {state.routes.map((route: any, index: number) => {
+            const focused = state.index === index;
+            const meta = tabIcons[route.name];
+            if (!meta) return null;
+
+            const onPress = () => {
+              const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+              Haptics.selectionAsync().catch(() => {});
+              if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+            };
+
+            return (
+              <TouchableOpacity
+                key={route.key}
+                accessibilityRole="button"
+                accessibilityState={focused ? { selected: true } : {}}
+                onPress={onPress}
+                activeOpacity={0.85}
+                style={[styles.tabItem, focused && styles.tabItemActive]}
+              >
+                <Ionicons
+                  name={focused ? meta.active : meta.inactive}
+                  size={focused ? 22 : 24}
+                  color={focused ? '#0a0a0a' : colors.textPrimary}
+                />
+                {focused && <Text style={styles.tabLabelActive}>{meta.label}</Text>}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+    </View>
+  );
 }
 
 export default function BottomTabNavigator() {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarShowLabel: true,
-        tabBarLabelStyle: styles.tabLabel,
-        tabBarActiveTintColor: colors.textPrimary,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarIcon: ({ color, size, focused }) => (
-          <TabIcon name={route.name} color={color} size={size} focused={focused} />
-        ),
-      })}
+      tabBar={(props: any) => <FloatingTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
     >
       <Tab.Screen name="Home" component={FeedScreen} />
       <Tab.Screen name="Duels" component={DuelsScreen} />
@@ -73,26 +84,44 @@ export default function BottomTabNavigator() {
 }
 
 const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: 'rgba(0,0,0,0.85)',
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    height: 80,
-    paddingBottom: 8,
-    paddingTop: 8,
+  tabBarWrapper: {
     position: 'absolute',
-    backdropFilter: 'blur(10px)',
-  },
-  tabLabel: {
-    fontSize: 10,
-    fontWeight: '600',
-    marginTop: 4,
-  },
-  activeIconBg: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    justifyContent: 'center',
+    left: 0,
+    right: 0,
+    bottom: 18,
     alignItems: 'center',
+  },
+  tabBarBlur: {
+    borderRadius: 36,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(20,20,20,0.55)',
+  },
+  tabBarInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    gap: 4,
+  },
+  tabItem: {
+    height: 48,
+    minWidth: 48,
+    paddingHorizontal: 14,
+    borderRadius: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  tabItemActive: {
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 18,
+  },
+  tabLabelActive: {
+    ...typography.small,
+    color: '#0a0a0a',
+    fontWeight: '700',
   },
 });

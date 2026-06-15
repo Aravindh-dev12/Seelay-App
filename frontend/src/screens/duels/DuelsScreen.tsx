@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import ScreenContainer from '../../components/ScreenContainer';
-import Header from '../../components/Header';
-import GradientButton from '../../components/GradientButton';
-import { api } from '../../api/client';
-import { colors, typography, spacing } from '../../theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { GlassCard, GlassChip, GlassIconButton, SectionHeader, glassTokens } from '../../components/Glass';
+import { colors, typography, spacing, gradients } from '../../theme';
 
 interface Duel {
   id: string;
@@ -18,298 +17,334 @@ interface Duel {
   crowd: number;
 }
 
-function DuelCard({ duel }: { duel: Duel }) {
-  const navigation = useNavigation();
-
-  return (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('DuelRoom', { duelId: duel.id })}
-      style={styles.card}
-    >
-      <View style={styles.cardHeader}>
-        <View>
-          <Text style={styles.cardTitle}>{duel.title}</Text>
-          <Text style={styles.cardSubtitle}>{duel.subtitle}</Text>
-        </View>
-        <View style={styles.rewardBadge}>
-          <Ionicons name="flash" size={14} color={colors.sand[0]} />
-          <Text style={styles.rewardText}>+{duel.reward}</Text>
-        </View>
-      </View>
-
-      <View style={styles.metricsRow}>
-        <Metric label="Motion" value={duel.motion} />
-        <Metric label="Rhythm" value={duel.rhythm} />
-        <Metric label="Crowd" value={duel.crowd} />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: number }) {
-  return (
-    <View style={styles.metricBox}>
-      <Text style={styles.metricLabel}>{label}</Text>
-      <Text style={styles.metricValue}>{value}</Text>
-    </View>
-  );
-}
-
 const CAMPUSES = ['All', 'Mumbai', 'Bengaluru', 'Delhi', 'Pune'];
 const CATEGORIES = ['All', 'Dance', 'Trick', 'Reaction'];
 
+const MOCK_DUELS: Duel[] = [
+  { id: 'duel_1', title: 'Campus Footwork Duel', subtitle: 'Mumbai Arts College · 60s · live', reward: 200, motion: 92, rhythm: 88, crowd: 76 },
+  { id: 'duel_2', title: 'Reaction Snap', subtitle: 'Open city challenge · 30s', reward: 150, motion: 88, rhythm: 91, crowd: 82 },
+  { id: 'duel_3', title: 'Jump Bass Drop', subtitle: 'National qualifier · 45s', reward: 300, motion: 96, rhythm: 85, crowd: 90 },
+  { id: 'duel_4', title: 'Bengaluru Bounce', subtitle: 'Bengaluru Tech Park · 45s', reward: 250, motion: 89, rhythm: 94, crowd: 88 },
+];
+
+const LEADERS = [
+  { rank: 1, name: 'Rohan Vibe', score: 2340 },
+  { rank: 2, name: 'Priya Flow', score: 2100 },
+  { rank: 3, name: 'Aman Pulse', score: 1980 },
+];
+
 export default function DuelsScreen() {
-  const [duels, setDuels] = useState<Duel[]>([]);
+  const navigation = useNavigation<any>();
   const [campus, setCampus] = useState('All');
   const [category, setCategory] = useState('All');
-  const navigation = useNavigation();
 
-  useEffect(() => {
-    const mockDuels: Duel[] = [
-      { id: 'duel_1', title: 'Campus Footwork Duel', subtitle: 'Mumbai Arts College · 60s · live', reward: 200, motion: 92, rhythm: 88, crowd: 76 },
-      { id: 'duel_2', title: 'Reaction Snap', subtitle: 'Open city challenge · 30s', reward: 150, motion: 88, rhythm: 91, crowd: 82 },
-      { id: 'duel_3', title: 'Jump Bass Drop', subtitle: 'National qualifier · 45s', reward: 300, motion: 96, rhythm: 85, crowd: 90 },
-      { id: 'duel_4', title: 'Bengaluru Bounce', subtitle: 'Bengaluru Tech Park · 45s', reward: 250, motion: 89, rhythm: 94, crowd: 88 },
-    ];
-    setDuels(mockDuels);
-  }, []);
-
-  const filtered = duels.filter((d: Duel) => {
+  const filtered = MOCK_DUELS.filter((d) => {
     const cMatch = campus === 'All' || d.subtitle.includes(campus);
     const catMatch = category === 'All' || d.title.toLowerCase().includes(category.toLowerCase());
     return cMatch && catMatch;
   });
 
   return (
-    <ScreenContainer>
-      <Header title="Campus Duels" showSearch={false} showNotifications={false} />
+    <LinearGradient
+      colors={gradients.background.colors}
+      start={gradients.background.start}
+      end={gradients.background.end}
+      style={styles.container}
+    >
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+          {/* Top bar */}
+          <View style={styles.topBar}>
+            <View>
+              <Text style={styles.eyebrow}>CAMPUS · LIVE</Text>
+              <Text style={styles.title}>Duels</Text>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <GlassIconButton icon="search" size={42} onPress={() => navigation.navigate('Search')} />
+              <GlassIconButton icon="trophy-outline" size={42} />
+            </View>
+          </View>
 
-      {/* Campus filter */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
-        {CAMPUSES.map((c) => (
-          <TouchableOpacity
-            key={c}
-            onPress={() => setCampus(c)}
-            style={[styles.filterChip, campus === c && styles.filterChipActive]}
+          {/* Campus filter */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterRow}
           >
-            <Text style={[styles.filterText, campus === c && styles.filterTextActive]}>{c}</Text>
+            {CAMPUSES.map((c) => (
+              <GlassChip key={c} label={c} active={campus === c} onPress={() => setCampus(c)} />
+            ))}
+          </ScrollView>
+
+          {/* Category filter */}
+          <View style={styles.catRow}>
+            {CATEGORIES.map((c) => (
+              <GlassChip key={c} label={c} active={category === c} onPress={() => setCategory(c)} />
+            ))}
+          </View>
+
+          {/* Featured live card */}
+          <GlassCard style={styles.featured} padding={spacing.lg} elevated>
+            <View style={styles.liveBadge}>
+              <View style={styles.liveDot} />
+              <Text style={styles.liveText}>LIVE NOW</Text>
+            </View>
+            <Text style={styles.featuredTitle}>India National Cypher</Text>
+            <Text style={styles.featuredSub}>3,142 viewers · 18 active duels</Text>
+            <TouchableOpacity activeOpacity={0.85} style={styles.joinBtn}>
+              <Ionicons name="play" size={16} color="#0a0a0a" />
+              <Text style={styles.joinBtnText}>Join Cypher</Text>
+            </TouchableOpacity>
+          </GlassCard>
+
+          <SectionHeader title="Live Duels" action="See all" />
+
+          <View style={{ gap: spacing.md, paddingHorizontal: spacing.md }}>
+            {filtered.map((duel) => (
+              <DuelCard key={duel.id} duel={duel} onPress={() => navigation.navigate('DuelRoom', { duelId: duel.id })} />
+            ))}
+          </View>
+
+          <SectionHeader title="City Leaderboard" action="View ranks" />
+
+          <GlassCard style={{ marginHorizontal: spacing.md }} padding={spacing.md}>
+            {LEADERS.map((l, idx) => (
+              <View key={l.rank} style={[styles.leaderRow, idx === LEADERS.length - 1 && { borderBottomWidth: 0 }]}>
+                <View style={styles.rankCircle}>
+                  <Text style={styles.rankText}>#{l.rank}</Text>
+                </View>
+                <Text style={styles.leaderName}>{l.name}</Text>
+                <Text style={styles.leaderScore}>{l.score.toLocaleString()}</Text>
+              </View>
+            ))}
+          </GlassCard>
+
+          <TouchableOpacity activeOpacity={0.85} style={styles.createBtn}>
+            <Ionicons name="add" size={20} color={colors.textPrimary} />
+            <Text style={styles.createBtnText}>Create Custom Duel</Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+        </ScrollView>
+      </SafeAreaView>
+    </LinearGradient>
+  );
+}
 
-      {/* Category filter */}
-      <View style={styles.catRow}>
-        {CATEGORIES.map((c) => (
-          <TouchableOpacity
-            key={c}
-            onPress={() => setCategory(c)}
-            style={[styles.catChip, category === c && styles.catChipActive]}
-          >
-            <Text style={[styles.catText, category === c && styles.catTextActive]}>{c}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+function DuelCard({ duel, onPress }: { duel: Duel; onPress: () => void }) {
+  return (
+    <TouchableOpacity activeOpacity={0.85} onPress={onPress}>
+      <GlassCard padding={spacing.md}>
+        <View style={styles.duelHead}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.duelTitle}>{duel.title}</Text>
+            <Text style={styles.duelSub}>{duel.subtitle}</Text>
+          </View>
+          <View style={styles.rewardChip}>
+            <Ionicons name="flash" size={14} color="#0a0a0a" />
+            <Text style={styles.rewardText}>+{duel.reward}</Text>
+          </View>
+        </View>
+        <View style={styles.duelMetrics}>
+          <DuelMetric label="Motion" value={duel.motion} />
+          <DuelMetric label="Rhythm" value={duel.rhythm} />
+          <DuelMetric label="Crowd" value={duel.crowd} />
+        </View>
+      </GlassCard>
+    </TouchableOpacity>
+  );
+}
 
-      <View style={styles.sectionHeader}>
-        <Ionicons name="flash" size={24} color={colors.sand[0]} />
-        <Text style={styles.sectionTitle}>Live Duels</Text>
-        <View style={styles.liveDot} />
-        <Text style={styles.liveText}>{filtered.length} active</Text>
-      </View>
-
-      <FlatList
-        data={filtered}
-        keyExtractor={(item: Duel) => item.id}
-        renderItem={({ item }: { item: Duel }) => <DuelCard duel={item} />}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
-
-      {/* Leaderboard teaser */}
-      <Text style={styles.sectionTitle}>City Leaderboard</Text>
-      <View style={styles.leaderRow}>
-        <Text style={styles.leaderRank}>#1</Text>
-        <Text style={styles.leaderName}>Rohan Vibe</Text>
-        <Text style={styles.leaderScore}>2,340</Text>
-      </View>
-      <View style={styles.leaderRow}>
-        <Text style={styles.leaderRank}>#2</Text>
-        <Text style={styles.leaderName}>Priya Flow</Text>
-        <Text style={styles.leaderScore}>2,100</Text>
-      </View>
-
-      <GradientButton
-        title="Create Custom Duel"
-        onPress={() => {}}
-        variant="secondary"
-        style={styles.createBtn}
-      />
-    </ScreenContainer>
+function DuelMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <View style={styles.metricBox}>
+      <Text style={styles.metricVal}>{value}</Text>
+      <Text style={styles.metricLabel}>{label}</Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    ...typography.h2,
-    color: colors.textPrimary,
-  },
-  list: {
-    gap: spacing.md,
-  },
-  card: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 16,
-    padding: spacing.md,
-  },
-  cardHeader: {
+  container: { flex: 1 },
+  topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.md,
+    alignItems: 'flex-end',
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
   },
-  cardTitle: {
-    ...typography.h3,
-    color: colors.textPrimary,
-  },
-  cardSubtitle: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: 4,
-  },
-  rewardBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(212,184,150,0.15)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
-    borderRadius: 12,
-    gap: 4,
-  },
-  rewardText: {
-    ...typography.small,
-    color: colors.sand[0],
-    fontWeight: '800',
-  },
-  metricsRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  metricBox: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
-    padding: spacing.sm,
-    alignItems: 'center',
-  },
-  metricLabel: {
-    ...typography.small,
+  eyebrow: {
+    ...typography.tiny,
     color: colors.textMuted,
-    fontWeight: '700',
+    textTransform: 'uppercase',
   },
-  metricValue: {
-    ...typography.body,
+  title: {
+    ...typography.h1,
     color: colors.textPrimary,
-    fontWeight: '800',
     marginTop: 2,
   },
-  createBtn: {
-    marginTop: spacing.md,
-  },
   filterRow: {
-    gap: spacing.sm,
-    paddingBottom: spacing.sm,
-  },
-  filterChip: {
     paddingHorizontal: spacing.md,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  filterChipActive: {
-    backgroundColor: 'rgba(212,184,150,0.15)',
-    borderColor: colors.sand[0],
-  },
-  filterText: {
-    ...typography.small,
-    color: colors.textSecondary,
-    fontWeight: '600',
-  },
-  filterTextActive: {
-    color: colors.sand[0],
-    fontWeight: '800',
+    gap: 8,
+    paddingBottom: spacing.sm,
   },
   catRow: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    gap: 8,
+    paddingHorizontal: spacing.md,
     marginBottom: spacing.md,
   },
-  catChip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+  featured: {
+    marginHorizontal: spacing.md,
+  },
+  liveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: glassTokens.radiusPill,
+    backgroundColor: 'rgba(255,80,80,0.15)',
     borderWidth: 1,
-    borderColor: colors.border,
-  },
-  catChipActive: {
-    backgroundColor: 'rgba(125,168,138,0.15)',
-    borderColor: colors.sage[0],
-  },
-  catText: {
-    ...typography.small,
-    color: colors.textSecondary,
-    fontWeight: '600',
-  },
-  catTextActive: {
-    color: colors.sage[0],
-    fontWeight: '800',
+    borderColor: 'rgba(255,80,80,0.4)',
   },
   liveDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.sage[0],
-    marginLeft: spacing.sm,
+    backgroundColor: '#ff5050',
   },
   liveText: {
+    ...typography.tiny,
+    color: '#ff5050',
+    fontWeight: '800',
+  },
+  featuredTitle: {
+    ...typography.h2,
+    color: colors.textPrimary,
+    marginTop: spacing.sm,
+  },
+  featuredSub: {
+    ...typography.caption,
+    color: colors.textMuted,
+    marginTop: 4,
+  },
+  joinBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: spacing.md,
+    paddingVertical: 12,
+    borderRadius: glassTokens.radiusPill,
+    alignSelf: 'flex-start',
+    marginTop: spacing.md,
+  },
+  joinBtnText: {
     ...typography.small,
-    color: colors.sage[0],
-    fontWeight: '700',
-    marginLeft: 4,
+    color: '#0a0a0a',
+    fontWeight: '800',
+  },
+  duelHead: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: spacing.md,
+  },
+  duelTitle: {
+    ...typography.h3,
+    color: colors.textPrimary,
+  },
+  duelSub: {
+    ...typography.small,
+    color: colors.textMuted,
+    marginTop: 4,
+  },
+  rewardChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: glassTokens.radiusPill,
+    backgroundColor: '#ffffff',
+  },
+  rewardText: {
+    ...typography.small,
+    color: '#0a0a0a',
+    fontWeight: '800',
+  },
+  duelMetrics: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  metricBox: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: glassTokens.radiusSm,
+    backgroundColor: glassTokens.bgSubtle,
+    borderWidth: 1,
+    borderColor: glassTokens.border,
+    alignItems: 'center',
+  },
+  metricVal: {
+    ...typography.h3,
+    color: colors.textPrimary,
+  },
+  metricLabel: {
+    ...typography.tiny,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   leaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.sm,
+    gap: 12,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: glassTokens.border,
   },
-  leaderRank: {
+  rankCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: glassTokens.bgStrong,
+    borderWidth: 1,
+    borderColor: glassTokens.borderStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rankText: {
     ...typography.small,
-    color: colors.sand[0],
-    width: 40,
-    fontWeight: '700',
+    color: colors.textPrimary,
+    fontWeight: '800',
   },
   leaderName: {
     ...typography.body,
     color: colors.textPrimary,
     flex: 1,
+    fontWeight: '600',
   },
   leaderScore: {
     ...typography.body,
-    color: colors.textSecondary,
+    color: colors.textMuted,
+    fontWeight: '700',
+  },
+  createBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginHorizontal: spacing.md,
+    marginTop: spacing.lg,
+    paddingVertical: 16,
+    borderRadius: glassTokens.radius,
+    backgroundColor: glassTokens.bg,
+    borderWidth: 1,
+    borderColor: glassTokens.borderStrong,
+  },
+  createBtnText: {
+    ...typography.body,
+    color: colors.textPrimary,
     fontWeight: '700',
   },
 });

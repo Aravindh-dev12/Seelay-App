@@ -1,7 +1,7 @@
 {
   "name": "seelay-frontend",
   "version": "0.1.0",
-  "main": "App.tsx",
+  "main": "index.js",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -11,6 +11,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@expo-google-fonts/sacramento": "^0.4.1",
     "@expo/metro-runtime": "~4.0.1",
     "@expo/vector-icons": "^14.0.0",
     "@mediapipe/pose": "^0.5.1675469404",

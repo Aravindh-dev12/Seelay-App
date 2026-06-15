@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useNavigation } from '@react-navigation/native';
 import ScreenContainer from '../../components/ScreenContainer';
@@ -129,19 +128,26 @@ export default function MirrorScreen() {
             </TouchableOpacity>
 
             <RNAnimated.View style={{ transform: [{ scale: pulseAnim }] }}>
-              <TouchableOpacity onPress={toggleRecording} activeOpacity={0.8}>
-                <LinearGradient
-                  colors={isRecording ? colors.copper : colors.sand}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.recordBtn}
-                >
-                  <Ionicons
-                    name={isRecording ? 'stop' : 'scan'}
-                    size={32}
-                    color="#0a0a0a"
-                  />
-                </LinearGradient>
+              <TouchableOpacity
+                onPress={toggleRecording}
+                activeOpacity={0.8}
+                style={[
+                  styles.recordBtn,
+                  {
+                    borderColor: isRecording
+                      ? 'rgba(255,100,100,0.5)'
+                      : 'rgba(255,255,255,0.25)',
+                    backgroundColor: isRecording
+                      ? 'rgba(255,80,80,0.15)'
+                      : 'rgba(255,255,255,0.10)',
+                  },
+                ]}
+              >
+                <Ionicons
+                  name={isRecording ? 'stop' : 'scan'}
+                  size={32}
+                  color={colors.textPrimary}
+                />
               </TouchableOpacity>
             </RNAnimated.View>
 
@@ -246,8 +252,7 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 3,
   },
   sideBtn: {
     alignItems: 'center',

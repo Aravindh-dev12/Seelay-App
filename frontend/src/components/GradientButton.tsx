@@ -1,18 +1,17 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { colors, typography } from '../theme';
 
 type Variant = 'primary' | 'secondary' | 'danger' | 'success';
 
-const variantColors: Record<Variant, readonly string[]> = {
-  primary: colors.sand,
-  secondary: colors.ash,
-  danger: colors.copper,
-  success: colors.sage,
+const variantGlass: Record<Variant, { bg: string; border: string }> = {
+  primary: { bg: 'rgba(255,255,255,0.10)', border: 'rgba(255,255,255,0.25)' },
+  secondary: { bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.12)' },
+  danger: { bg: 'rgba(255,80,80,0.12)', border: 'rgba(255,100,100,0.30)' },
+  success: { bg: 'rgba(80,255,120,0.10)', border: 'rgba(100,255,140,0.25)' },
 };
 
-interface GradientButtonProps {
+interface GlassButtonProps {
   title: string;
   onPress: () => void;
   variant?: Variant;
@@ -30,23 +29,32 @@ export default function GradientButton({
   disabled = false,
   style,
   textStyle,
-}: GradientButtonProps) {
+}: GlassButtonProps) {
   const sizeStyles = {
-    sm: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 10 },
-    md: { paddingVertical: 14, paddingHorizontal: 24, borderRadius: 14 },
-    lg: { paddingVertical: 18, paddingHorizontal: 32, borderRadius: 16 },
+    sm: { paddingVertical: 8, paddingHorizontal: 16 },
+    md: { paddingVertical: 14, paddingHorizontal: 24 },
+    lg: { paddingVertical: 18, paddingHorizontal: 32 },
   };
 
+  const glass = variantGlass[variant];
+
   return (
-    <TouchableOpacity onPress={onPress} disabled={disabled} activeOpacity={0.8}>
-      <LinearGradient
-        colors={variantColors[variant]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.button, sizeStyles[size], disabled && styles.disabled, style]}
-      >
-        <Text style={[styles.text, textStyle]}>{title}</Text>
-      </LinearGradient>
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled}
+      activeOpacity={0.8}
+      style={[
+        styles.button,
+        sizeStyles[size],
+        {
+          backgroundColor: glass.bg,
+          borderColor: glass.border,
+        },
+        disabled && styles.disabled,
+        style,
+      ]}
+    >
+      <Text style={[styles.text, textStyle]}>{title}</Text>
     </TouchableOpacity>
   );
 }
@@ -55,13 +63,15 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 20,
+    borderWidth: 1,
   },
   text: {
     ...typography.body,
-    color: '#0a0a0a',
-    fontWeight: '800',
+    color: colors.textPrimary,
+    fontWeight: '700',
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
 });

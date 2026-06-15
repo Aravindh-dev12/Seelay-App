@@ -6,14 +6,16 @@ import { colors, typography, spacing, shadows } from '../theme';
 import { useVisor } from './VisorContext';
 import type { VisorExpression } from './types';
 
-const CORE_SIZE = 72;
-const RING_SIZE = 96;
+const BODY_WIDTH = 90;
+const BODY_HEIGHT = 64;
+const RING_SIZE = 120;
 
 const EXPRESSION_CONFIG: Record<VisorExpression, { core: readonly string[]; ring: string; eye: string; speed: number }> = {
-  idle:    { core: colors.sand,  ring: 'rgba(212,184,150,0.25)', eye: colors.sand[0],  speed: 8000 },
-  listening:{ core: colors.sage,  ring: 'rgba(125,168,138,0.35)', eye: colors.sage[0],  speed: 3000 },
-  thinking:{ core: colors.ash,   ring: 'rgba(107,107,107,0.30)', eye: colors.ash[0],   speed: 1500 },
-  speaking:{ core: colors.copper,ring: 'rgba(196,144,122,0.40)', eye: colors.copper[0],speed: 1000 },
+  idle:      { core: ['#1c1c1c', '#0f0f0f'], ring: 'rgba(255,255,255,0.15)', eye: '#ffffff', speed: 8000 },
+  listening: { core: ['#3a3a3a', '#1a1a1a'], ring: 'rgba(255,255,255,0.35)', eye: '#ffffff', speed: 3000 },
+  thinking:  { core: ['#121212', '#080808'], ring: 'rgba(255,255,255,0.20)', eye: '#888888', speed: 1500 },
+  speaking:  { core: ['#4a4a4a', '#222222'], ring: 'rgba(255,255,255,0.50)', eye: '#ffffff', speed: 1000 },
+  dancing:   { core: ['#3a3a3a', '#0a0a0a'], ring: 'rgba(255,255,255,0.60)', eye: '#ffffff', speed: 600 },
 };
 
 export default function SeelayVisor() {
@@ -24,21 +26,24 @@ export default function SeelayVisor() {
   const win = Dimensions.get('window');
 
   const position = useRef(
-    new Animated.ValueXY({ x: win.width - CORE_SIZE - 24, y: win.height - 200 }),
+    new Animated.ValueXY({ x: win.width - BODY_WIDTH - 24, y: win.height - 240 }),
   ).current;
 
   const breathe = useRef(new Animated.Value(1)).current;
   const ringSpin = useRef(new Animated.Value(0)).current;
   const eyeBlink = useRef(new Animated.Value(1)).current;
   const coreGlow = useRef(new Animated.Value(0.6)).current;
-  const antennaLeft = useRef(new Animated.Value(0)).current;
-  const antennaRight = useRef(new Animated.Value(0)).current;
+  const waveAnim = useRef(new Animated.Value(0)).current;
+  const walkAnim = useRef(new Animated.Value(0)).current;
+  const danceBounce = useRef(new Animated.Value(0)).current;
+  const danceTilt = useRef(new Animated.Value(0)).current;
+  const danceArms = useRef(new Animated.Value(0)).current;
 
   // Breathing heartbeat — always alive
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(breathe, { toValue: 1.08, duration: 1800, useNativeDriver: false }),
+        Animated.timing(breathe, { toValue: 1.05, duration: 1800, useNativeDriver: false }),
         Animated.timing(breathe, { toValue: 1, duration: 1800, useNativeDriver: false }),
       ]),
     );
@@ -55,7 +60,7 @@ export default function SeelayVisor() {
     return () => loop.stop();
   }, [cfg.speed, ringSpin]);
 
-  // Eye blink — more when thinking/speaking
+  // Eye blink — faster when thinking/speaking
   useEffect(() => {
     const interval = expression === 'idle' ? 4000 : expression === 'listening' ? 2000 : 800;
     const blinkLoop = Animated.loop(
@@ -69,24 +74,80 @@ export default function SeelayVisor() {
     return () => blinkLoop.stop();
   }, [expression, eyeBlink]);
 
+  // Wave arm loop when speaking or listening
+  useEffect(() => {
+    if (expression === 'speaking' || expression === 'listening') {
+      const loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(waveAnim, { toValue: 1, duration: 400, useNativeDriver: false }),
+          Animated.timing(waveAnim, { toValue: 0, duration: 400, useNativeDriver: false }),
+        ]),
+      );
+      loop.start();
+      return () => loop.stop();
+    } else {
+      Animated.timing(waveAnim, { toValue: 0, duration: 300, useNativeDriver: false }).start();
+    }
+  }, [expression, waveAnim]);
+
+  // Walk animation when followMode is active
+  useEffect(() => {
+    if (followMode) {
+      const loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(walkAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(walkAnim, { toValue: -1, duration: 300, useNativeDriver: false }),
+        ]),
+      );
+      loop.start();
+      return () => loop.stop();
+    } else {
+      Animated.timing(walkAnim, { toValue: 0, duration: 300, useNativeDriver: false }).start();
+    }
+  }, [followMode, walkAnim]);
+
+  // Dance animation loop
+  useEffect(() => {
+    if (expression === 'dancing') {
+      const loop = Animated.loop(
+        Animated.parallel([
+          Animated.sequence([
+            Animated.timing(danceBounce, { toValue: -12, duration: 200, useNativeDriver: false }),
+            Animated.timing(danceBounce, { toValue: 0, duration: 200, useNativeDriver: false }),
+          ]),
+          Animated.sequence([
+            Animated.timing(danceTilt, { toValue: 1, duration: 300, useNativeDriver: false }),
+            Animated.timing(danceTilt, { toValue: -1, duration: 300, useNativeDriver: false }),
+          ]),
+          Animated.sequence([
+            Animated.timing(danceArms, { toValue: 1, duration: 150, useNativeDriver: false }),
+            Animated.timing(danceArms, { toValue: -1, duration: 150, useNativeDriver: false }),
+          ]),
+        ])
+      );
+      loop.start();
+      return () => {
+        loop.stop();
+        Animated.parallel([
+          Animated.timing(danceBounce, { toValue: 0, duration: 150, useNativeDriver: false }),
+          Animated.timing(danceTilt, { toValue: 0, duration: 150, useNativeDriver: false }),
+          Animated.timing(danceArms, { toValue: 0, duration: 150, useNativeDriver: false }),
+        ]).start();
+      };
+    }
+  }, [expression, danceBounce, danceTilt, danceArms]);
+
   // Core glow intensity
   useEffect(() => {
-    const target = expression === 'speaking' ? 1 : expression === 'thinking' ? 0.4 : 0.7;
+    const target = expression === 'speaking' ? 1 : expression === 'dancing' ? 0.9 : expression === 'thinking' ? 0.4 : 0.7;
     Animated.timing(coreGlow, { toValue: target, duration: 600, useNativeDriver: false }).start();
   }, [expression, coreGlow]);
-
-  // Antennae extend when listening
-  useEffect(() => {
-    const target = expression === 'listening' ? 1 : 0;
-    Animated.spring(antennaLeft, { toValue: target, useNativeDriver: false, friction: 5 }).start();
-    Animated.spring(antennaRight, { toValue: target, useNativeDriver: false, friction: 5 }).start();
-  }, [expression, antennaLeft, antennaRight]);
 
   const pan = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_evt: any, gesture: any) => Math.abs(gesture.dx) + Math.abs(gesture.dy) > 6,
       onPanResponderMove: (_evt: any, gesture: any) => {
-        position.setValue({ x: gesture.moveX - CORE_SIZE / 2, y: gesture.moveY - CORE_SIZE / 2 - 40 });
+        position.setValue({ x: gesture.moveX - BODY_WIDTH / 2, y: gesture.moveY - BODY_HEIGHT / 2 - 40 });
       },
     }),
   ).current;
@@ -94,8 +155,53 @@ export default function SeelayVisor() {
   if (!visible) return null;
 
   const ringRotate = ringSpin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
-  const antLeft = antennaLeft.interpolate({ inputRange: [0, 1], outputRange: ['-45deg', '-75deg'] });
-  const antRight = antennaRight.interpolate({ inputRange: [0, 1], outputRange: ['45deg', '75deg'] });
+  
+  // Arm rotation interpolations
+  const rightArmRotate = expression === 'dancing'
+    ? danceArms.interpolate({
+        inputRange: [-1, 1],
+        outputRange: ['30deg', '-60deg']
+      })
+    : waveAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['15deg', '-60deg'] // waves up and down
+      });
+
+  const leftArmRotate = expression === 'dancing'
+    ? danceArms.interpolate({
+        inputRange: [-1, 1],
+        outputRange: ['-60deg', '30deg']
+      })
+    : walkAnim.interpolate({
+        inputRange: [-1, 1],
+        outputRange: ['-10deg', '30deg']
+      });
+
+  // Leg rotation/offset interpolations for walking/dancing
+  const leftLegOffset = expression === 'dancing'
+    ? danceArms.interpolate({
+        inputRange: [-1, 1],
+        outputRange: [-5, 5]
+      })
+    : walkAnim.interpolate({
+        inputRange: [-1, 1],
+        outputRange: [-4, 4]
+      });
+
+  const rightLegOffset = expression === 'dancing'
+    ? danceArms.interpolate({
+        inputRange: [-1, 1],
+        outputRange: [5, -5]
+      })
+    : walkAnim.interpolate({
+        inputRange: [-1, 1],
+        outputRange: [4, -4]
+      });
+
+  const danceRotate = danceTilt.interpolate({
+    inputRange: [-1, 1],
+    outputRange: ['-10deg', '10deg']
+  });
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
@@ -107,7 +213,7 @@ export default function SeelayVisor() {
           onResponderMove={(evt: any) => {
             const { pageX, pageY } = evt.nativeEvent;
             Animated.spring(position, {
-              toValue: { x: pageX - CORE_SIZE / 2, y: pageY - CORE_SIZE / 2 - 40 },
+              toValue: { x: pageX - BODY_WIDTH / 2, y: pageY - BODY_HEIGHT / 2 - 40 },
               useNativeDriver: false, speed: 30, bounciness: 6,
             }).start();
           }}
@@ -117,9 +223,9 @@ export default function SeelayVisor() {
       {panelOpen ? (
         <View style={styles.panel}>
           <View style={styles.panelHeader}>
-            <Text style={styles.panelTitle}>SEELAY</Text>
+            <Text style={styles.panelTitle}>Seelay</Text>
             {providerUsed ? (
-              <View style={[styles.providerBadge, providerUsed === 'ollama' && styles.providerOllama]}>
+              <View style={styles.providerBadge}>
                 <Text style={styles.providerText}>{providerUsed === 'ollama' ? 'LOCAL' : 'CLOUD'}</Text>
               </View>
             ) : null}
@@ -131,7 +237,7 @@ export default function SeelayVisor() {
               <Text style={styles.actionLabel}>Talk</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.actionBtn, followMode && styles.actionActive]} onPress={toggleFollow}>
-              <Ionicons name="locate" size={22} color={followMode ? colors.sage[0] : colors.textSecondary} />
+              <Ionicons name="locate" size={22} color={followMode ? '#ffffff' : colors.textSecondary} />
               <Text style={styles.actionLabel}>{followMode ? 'Following' : 'Follow'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionBtn} onPress={closePanel}>
@@ -146,14 +252,23 @@ export default function SeelayVisor() {
         {...pan.panHandlers}
         style={[{
           position: 'absolute',
+          width: BODY_WIDTH + 40, // padding for arms
+          height: BODY_HEIGHT + 50, // padding for legs
+          alignItems: 'center',
+          justifyContent: 'center',
           transform: [
-            { translateX: position.x },
-            { translateY: position.y },
+            { translateX: position.x - 20 },
+            { translateY: Animated.add(position.y, danceBounce) },
             { scale: breathe },
+            { rotate: danceRotate },
           ],
         }]}
       >
-        <TouchableOpacity activeOpacity={0.9} onPress={() => (panelOpen ? closePanel() : openPanel())}>
+        <TouchableOpacity 
+          activeOpacity={0.9} 
+          onPress={() => (panelOpen ? closePanel() : openPanel())}
+          style={styles.characterContainer}
+        >
           {/* AURA RING */}
           <Animated.View style={[styles.auraRing, {
             borderColor: cfg.ring,
@@ -165,45 +280,65 @@ export default function SeelayVisor() {
             <View style={[styles.auraDot, { right: 0, top: '50%', marginTop: -2, backgroundColor: cfg.eye }]} />
           </Animated.View>
 
-          {/* CORE ORB */}
-          <LinearGradient
-            colors={cfg.core}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.coreOrb}
-          >
-            {/* Inner shadow layer */}
-            <View style={styles.coreInner}>
-              {/* LEFT ANTENNA */}
-              <Animated.View style={[styles.antenna, { left: 16, top: -8, transform: [{ rotate: antLeft }] }]}>
-                <View style={[styles.antennaTip, { backgroundColor: cfg.eye }]} />
-              </Animated.View>
-              {/* RIGHT ANTENNA */}
-              <Animated.View style={[styles.antenna, { right: 16, top: -8, transform: [{ rotate: antRight }] }]}>
-                <View style={[styles.antennaTip, { backgroundColor: cfg.eye }]} />
-              </Animated.View>
+          {/* LEFT ARM */}
+          <Animated.View style={[styles.armLeft, { transform: [{ rotate: leftArmRotate }] }]}>
+            <View style={styles.armLine} />
+            <View style={styles.hand} />
+          </Animated.View>
 
-              {/* EYES */}
-              <Animated.View style={[styles.eyeRow, { opacity: eyeBlink }]}>
-                <View style={[styles.eye, { backgroundColor: cfg.eye }]}>
-                  <View style={styles.eyePupil} />
-                </View>
-                <View style={[styles.eye, { backgroundColor: cfg.eye }]}>
-                  <View style={styles.eyePupil} />
-                </View>
-              </Animated.View>
+          {/* RIGHT ARM (WAVING) */}
+          <Animated.View style={[styles.armRight, { transform: [{ rotate: rightArmRotate }] }]}>
+            <View style={styles.armLine} />
+            <View style={styles.hand} />
+          </Animated.View>
 
-              {/* MOUTH */}
-              <View style={[styles.mouth, {
-                borderColor: cfg.eye,
-                borderBottomWidth: expression === 'speaking' ? 3 : expression === 'thinking' ? 1 : 2,
-                borderRadius: expression === 'speaking' ? 8 : expression === 'thinking' ? 2 : 6,
-              }]} />
+          {/* LEGS (CONNECTED TO BOTTOM OF BODY) */}
+          <View style={styles.legsRow}>
+            {/* LEFT LEG */}
+            <Animated.View style={[styles.legContainer, { transform: [{ translateY: leftLegOffset }] }]}>
+              <View style={styles.legLine} />
+              <View style={styles.shoe} />
+            </Animated.View>
+            {/* RIGHT LEG */}
+            <Animated.View style={[styles.legContainer, { transform: [{ translateY: rightLegOffset }] }]}>
+              <View style={styles.legLine} />
+              <View style={styles.shoe} />
+            </Animated.View>
+          </View>
 
-              {/* GLOW CORE */}
-              <Animated.View style={[styles.glowCore, { opacity: coreGlow, backgroundColor: cfg.eye }]} />
-            </View>
-          </LinearGradient>
+          {/* TV CAPSULE BODY */}
+          <View style={styles.bodyOutline}>
+            <LinearGradient
+              colors={cfg.core}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.coreInner}
+            >
+              {/* SCREEN REFLECTION GLASS EFFECT */}
+              <View style={styles.glassShine} />
+
+              {/* FACE SCREEN */}
+              <View style={styles.faceScreen}>
+                {/* EYES */}
+                <Animated.View style={[styles.eyeRow, { opacity: eyeBlink }]}>
+                  <View style={[styles.eye, { backgroundColor: cfg.eye }]} />
+                  <View style={[styles.eye, { backgroundColor: cfg.eye }]} />
+                </Animated.View>
+
+                {/* MOUTH */}
+                <View style={[styles.mouth, {
+                  borderColor: cfg.eye,
+                  borderBottomWidth: (expression === 'speaking' || expression === 'dancing') ? 3 : 2,
+                  borderRadius: (expression === 'speaking' || expression === 'dancing') ? 8 : 6,
+                  height: (expression === 'speaking' || expression === 'dancing') ? 10 : 6,
+                }]} />
+
+                {/* GLOW BAR */}
+                <Animated.View style={[styles.glowCore, { opacity: coreGlow, backgroundColor: cfg.eye }]} />
+              </View>
+            </LinearGradient>
+          </View>
+
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -213,118 +348,169 @@ export default function SeelayVisor() {
 const styles = StyleSheet.create({
   followLayer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.02)',
+    backgroundColor: 'rgba(0,0,0,0.01)',
+  },
+  characterContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: BODY_WIDTH + 40,
+    height: BODY_HEIGHT + 40,
   },
   auraRing: {
     position: 'absolute',
-    top: -(RING_SIZE - CORE_SIZE) / 2,
-    left: -(RING_SIZE - CORE_SIZE) / 2,
+    top: (BODY_HEIGHT + 40 - RING_SIZE) / 2,
+    left: (BODY_WIDTH + 40 - RING_SIZE) / 2,
     width: RING_SIZE,
     height: RING_SIZE,
     borderRadius: RING_SIZE / 2,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderStyle: 'dashed' as any,
-    borderColor: 'rgba(212,184,150,0.25)',
+    borderColor: 'rgba(255,255,255,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 0,
   },
   auraDot: {
     position: 'absolute',
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    shadowColor: '#fff',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
   },
-  coreOrb: {
-    width: CORE_SIZE,
-    height: CORE_SIZE,
-    borderRadius: CORE_SIZE / 2,
-    padding: 3,
-    zIndex: 2,
+  bodyOutline: {
+    width: BODY_WIDTH,
+    height: BODY_HEIGHT,
+    borderRadius: 18,
+    borderWidth: 2.5,
+    borderColor: '#ffffff',
+    backgroundColor: '#000000',
+    overflow: 'hidden',
+    zIndex: 5,
     ...shadows.elevated,
   },
   coreInner: {
     flex: 1,
-    borderRadius: (CORE_SIZE - 6) / 2,
-    backgroundColor: 'rgba(5,5,8,0.92)',
+    padding: 3,
     justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'hidden' as any,
+    position: 'relative',
   },
-  antenna: {
+  glassShine: {
     position: 'absolute',
-    width: 2,
-    height: 14,
-    backgroundColor: 'rgba(212,184,150,0.6)',
-    borderRadius: 1,
-    transformOrigin: 'bottom center' as any,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    transform: [{ skewY: '-15deg' }, { scaleY: 1.5 }],
   },
-  antennaTip: {
-    position: 'absolute',
-    top: -3,
-    left: -2,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    shadowColor: '#fff',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 4,
+  faceScreen: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   eyeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: -2,
+    marginBottom: 4,
   },
   eye: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 5,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginHorizontal: 8,
     shadowColor: '#fff',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.7,
-    shadowRadius: 6,
-  },
-  eyePupil: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#000',
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
   },
   mouth: {
-    width: 16,
-    height: 8,
+    width: 14,
+    height: 6,
     borderTopWidth: 0,
     borderLeftWidth: 0,
     borderRightWidth: 0,
     borderBottomWidth: 2,
-    borderColor: colors.sand[0],
+    borderColor: '#ffffff',
     borderRadius: 6,
-    marginTop: 4,
+    marginTop: 2,
   },
   glowCore: {
     position: 'absolute',
-    bottom: 6,
-    width: 20,
+    bottom: 2,
+    width: 16,
+    height: 3,
+    borderRadius: 1.5,
+  },
+  // ARMS
+  armLeft: {
+    position: 'absolute',
+    left: 0,
+    top: BODY_HEIGHT / 2 - 4,
+    width: 24,
+    height: 12,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  armRight: {
+    position: 'absolute',
+    right: 0,
+    top: BODY_HEIGHT / 2 - 4,
+    width: 24,
+    height: 12,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  armLine: {
+    width: 16,
+    height: 2,
+    backgroundColor: '#ffffff',
+  },
+  hand: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#000000',
+  },
+  // LEGS
+  legsRow: {
+    position: 'absolute',
+    bottom: 0,
+    width: BODY_WIDTH - 20,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    zIndex: 1,
+  },
+  legContainer: {
+    alignItems: 'center',
+    width: 16,
+  },
+  legLine: {
+    width: 2.5,
+    height: 18,
+    backgroundColor: '#ffffff',
+  },
+  shoe: {
+    width: 12,
     height: 6,
     borderRadius: 3,
-    opacity: 0.6,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#000000',
   },
+  // PANEL
   panel: {
     position: 'absolute',
-    bottom: 110,
+    bottom: 140,
     left: 16,
     right: 16,
-    backgroundColor: 'rgba(8,8,12,0.98)',
+    backgroundColor: 'rgba(10,10,10,0.96)',
     borderWidth: 1,
-    borderColor: colors.borderActive,
+    borderColor: 'rgba(255,255,255,0.2)',
     borderRadius: 24,
     padding: spacing.md,
     ...shadows.elevated,
@@ -338,21 +524,18 @@ const styles = StyleSheet.create({
   },
   panelTitle: {
     ...typography.tiny,
-    color: colors.sand[0],
-    letterSpacing: 4,
-    fontWeight: '900',
+    color: '#ffffff',
+    letterSpacing: 2,
+    fontFamily: 'Sacramento_400Regular',
+    fontSize: 18,
   },
   providerBadge: {
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
-    backgroundColor: 'rgba(200,160,120,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.1)',
     borderWidth: 1,
-    borderColor: colors.copper[0],
-  },
-  providerOllama: {
-    backgroundColor: 'rgba(125,168,138,0.2)',
-    borderColor: colors.sage[0],
+    borderColor: '#ffffff',
   },
   providerText: {
     ...typography.tiny,
@@ -376,7 +559,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   actionActive: {
-    backgroundColor: 'rgba(125,168,138,0.12)',
+    backgroundColor: 'rgba(255,255,255,0.15)',
   },
   actionLabel: {
     ...typography.small,

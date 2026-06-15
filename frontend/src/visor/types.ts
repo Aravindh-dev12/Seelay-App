@@ -1,4 +1,4 @@
-export type VisorExpression = 'idle' | 'listening' | 'thinking' | 'speaking';
+export type VisorExpression = 'idle' | 'listening' | 'thinking' | 'speaking' | 'dancing';
 
 export interface VisorReply {
   text: string;

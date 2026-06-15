@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import ScreenContainer from '../../components/ScreenContainer';
-import Header from '../../components/Header';
-import GradientButton from '../../components/GradientButton';
-import { colors, typography, spacing } from '../../theme';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { GlassCard, GlassChip, GlassIconButton, SectionHeader, glassTokens } from '../../components/Glass';
+import { colors, typography, spacing, gradients } from '../../theme';
 
 function pad(n: number) {
   return n < 10 ? '0' + n : String(n);
@@ -30,71 +29,99 @@ export default function WorldDropScreen() {
   }, []);
 
   return (
-    <ScreenContainer>
-      <Header title="World Drop" showSearch={false} showNotifications={false} />
+    <LinearGradient
+      colors={gradients.background.colors}
+      start={gradients.background.start}
+      end={gradients.background.end}
+      style={styles.container}
+    >
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+          <View style={styles.topBar}>
+            <View>
+              <Text style={styles.eyebrow}>WEEKLY · INDIA</Text>
+              <Text style={styles.title}>World Drop</Text>
+            </View>
+            <GlassIconButton icon="trophy-outline" size={42} />
+          </View>
 
-      <View style={styles.hero}>
-        <View style={styles.badge}>
-          <Ionicons name="time" size={14} color={colors.sand[0]} />
-          <Text style={styles.badgeText}>Every Friday · 8:00 PM IST</Text>
-        </View>
-        <Text style={styles.heroTitle}>India Pulse Drop</Text>
-        <Text style={styles.heroSub}>
-          60-second national challenge. Top 100 clips become the weekly seelay supercut posted to YouTube + Instagram.
-        </Text>
-      </View>
+          {/* Hero countdown card */}
+          <GlassCard style={styles.heroCard} padding={spacing.lg} elevated>
+            <GlassChip label="Every Friday · 8:00 PM IST" icon="time-outline" />
+            <Text style={styles.heroTitle}>India Pulse Drop</Text>
+            <Text style={styles.heroSub}>
+              60-second national challenge. Top 100 clips become the weekly Seelay supercut.
+            </Text>
 
-      {/* Countdown */}
-      <LinearGradient
-        colors={colors.copper}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.countdownCard}
-      >
-        <Text style={styles.countdownLabel}>Next Drop In</Text>
-        <Text style={styles.countdownValue}>{formatTime(timeLeft)}</Text>
-        <Text style={styles.countdownSub}>Friday 8:00 PM IST · 60s window</Text>
-      </LinearGradient>
+            <View style={styles.countdownInner}>
+              <Text style={styles.countdownLabel}>Next drop in</Text>
+              <Text style={styles.countdownValue}>{formatTime(timeLeft)}</Text>
+              <View style={styles.countdownDots}>
+                <Text style={styles.countdownUnit}>HRS</Text>
+                <Text style={styles.countdownUnit}>MIN</Text>
+                <Text style={styles.countdownUnit}>SEC</Text>
+              </View>
+            </View>
 
-      <View style={styles.metricsRow}>
-        <Metric label="Reward" value="500" icon="flash" />
-        <Metric label="Window" value="60s" icon="time" />
-        <Metric label="Your Rank" value="#42" icon="trophy" />
-      </View>
+            {entered ? (
+              <View style={styles.enteredRow}>
+                <Ionicons name="checkmark-circle" size={20} color="#ffffff" />
+                <Text style={styles.enteredText}>You're in. Notification at 7:58 PM IST.</Text>
+              </View>
+            ) : (
+              <TouchableOpacity activeOpacity={0.85} onPress={() => setEntered(true)} style={styles.enterBtn}>
+                <Ionicons name="flash" size={16} color="#0a0a0a" />
+                <Text style={styles.enterBtnText}>Enter World Drop</Text>
+              </TouchableOpacity>
+            )}
+          </GlassCard>
 
-      {entered ? (
-        <View style={styles.enteredCard}>
-          <Ionicons name="checkmark-circle" size={32} color={colors.sage[0]} />
-          <Text style={styles.enteredTitle}>You are in the drop</Text>
-          <Text style={styles.enteredSub}>Notification will fire at 7:58 PM IST</Text>
-        </View>
-      ) : (
-        <GradientButton title="Enter World Drop" onPress={() => setEntered(true)} size="lg" />
-      )}
+          <View style={styles.metricsRow}>
+            <Metric label="Reward" value="500" icon="flash" />
+            <Metric label="Window" value="60s" icon="time-outline" />
+            <Metric label="Your Rank" value="#42" icon="trophy-outline" />
+          </View>
 
-      <Text style={styles.sectionTitle}>Global Leaderboard</Text>
-      {[1, 2, 3, 4, 5].map((rank) => (
-        <View key={rank} style={styles.leaderboardRow}>
-          <Text style={styles.rankText}>#{rank}</Text>
-          <Text style={styles.leaderName}>Creator {rank}</Text>
-          <Text style={styles.leaderScore}>{950 - rank * 37}</Text>
-        </View>
-      ))}
+          <SectionHeader title="Global Leaderboard" action="See full" />
 
-      <View style={styles.viralBox}>
-        <Ionicons name="videocam" size={20} color={colors.sand[0]} />
-        <Text style={styles.viralText}>
-          Being in the supercut = viral. This is the most powerful weekly retention event ever built into a social app.
-        </Text>
-      </View>
-    </ScreenContainer>
+          <GlassCard style={{ marginHorizontal: spacing.md }} padding={spacing.md}>
+            {[1, 2, 3, 4, 5].map((rank) => (
+              <View key={rank} style={[styles.leaderRow, rank === 5 && { borderBottomWidth: 0 }]}>
+                <View style={[styles.rankCircle, rank <= 3 && styles.rankCirclePodium]}>
+                  <Text style={[styles.rankText, rank <= 3 && { color: '#0a0a0a' }]}>#{rank}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.leaderName}>Creator {rank}</Text>
+                  <Text style={styles.leaderMeta}>Mumbai · {950 - rank * 37} pts</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+              </View>
+            ))}
+          </GlassCard>
+
+          <GlassCard style={{ marginHorizontal: spacing.md, marginTop: spacing.lg }} padding={spacing.md}>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
+              <View style={styles.viralIcon}>
+                <Ionicons name="videocam" size={20} color={colors.textPrimary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.viralTitle}>Get into the supercut</Text>
+                <Text style={styles.viralBody}>
+                  Top performers are featured every week on Seelay's official channels.
+                </Text>
+              </View>
+            </View>
+          </GlassCard>
+        </ScrollView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
-function Metric({ label, value, icon }: { label: string; value: string; icon: keyof typeof Ionicons.glyphMap }) {
+function Metric({ label, value, icon }: { label: string; value: string; icon: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap }) {
   return (
     <View style={styles.metricBox}>
-      <Ionicons name={icon} size={20} color={colors.sand[0]} />
+      <Ionicons name={icon} size={20} color={colors.textPrimary} />
       <Text style={styles.metricValue}>{value}</Text>
       <Text style={styles.metricLabel}>{label}</Text>
     </View>
@@ -102,147 +129,183 @@ function Metric({ label, value, icon }: { label: string; value: string; icon: ke
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    backgroundColor: 'rgba(212,184,150,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(212,184,150,0.2)',
-    borderRadius: 16,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  badge: {
+  container: { flex: 1 },
+  topBar: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: spacing.sm,
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
   },
-  badgeText: {
-    ...typography.small,
-    color: colors.sand[0],
-    fontWeight: '700',
+  eyebrow: {
+    ...typography.tiny,
+    color: colors.textMuted,
+    textTransform: 'uppercase',
   },
-  heroTitle: {
+  title: {
     ...typography.h1,
     color: colors.textPrimary,
+    marginTop: 2,
+  },
+  heroCard: {
+    marginHorizontal: spacing.md,
+  },
+  heroTitle: {
+    ...typography.h2,
+    color: colors.textPrimary,
+    marginTop: spacing.sm,
   },
   heroSub: {
     ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: spacing.sm,
+    color: colors.textMuted,
+    marginTop: 4,
+    lineHeight: 20,
   },
-  metricsRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  metricBox: {
-    flex: 1,
+  countdownInner: {
+    marginTop: spacing.md,
+    paddingVertical: spacing.md,
+    borderRadius: glassTokens.radiusSm,
     backgroundColor: 'rgba(0,0,0,0.35)',
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    padding: spacing.md,
+    borderColor: glassTokens.border,
     alignItems: 'center',
-  },
-  metricValue: {
-    ...typography.h3,
-    color: colors.textPrimary,
-    marginTop: 4,
-  },
-  metricLabel: {
-    ...typography.small,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  countdownCard: {
-    borderRadius: 20,
-    padding: spacing.lg,
-    alignItems: 'center',
-    marginBottom: spacing.lg,
   },
   countdownLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: 'rgba(10,10,10,0.7)',
+    ...typography.tiny,
+    color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   countdownValue: {
-    fontSize: 40,
+    fontSize: 44,
     fontWeight: '900',
-    color: '#0a0a0a',
-    marginVertical: spacing.sm,
+    color: colors.textPrimary,
+    marginTop: 4,
     fontVariant: ['tabular-nums'],
   },
-  countdownSub: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: 'rgba(10,10,10,0.6)',
-  },
-  enteredCard: {
-    backgroundColor: 'rgba(125,168,138,0.08)',
-    borderWidth: 1,
-    borderColor: colors.sage[0],
-    borderRadius: 16,
-    padding: spacing.lg,
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  enteredTitle: {
-    ...typography.h3,
-    color: colors.sage[0],
-    marginTop: spacing.sm,
-  },
-  enteredSub: {
-    ...typography.caption,
-    color: colors.textSecondary,
+  countdownDots: {
+    flexDirection: 'row',
+    gap: 32,
     marginTop: 4,
   },
-  viralBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-    backgroundColor: 'rgba(212,184,150,0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(212,184,150,0.15)',
-    borderRadius: 14,
-    padding: spacing.md,
-    marginTop: spacing.lg,
-    marginBottom: spacing.xl,
+  countdownUnit: {
+    ...typography.tiny,
+    color: colors.textMuted,
+    letterSpacing: 2,
   },
-  viralText: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    flex: 1,
-    lineHeight: 20,
-  },
-  sectionTitle: {
-    ...typography.h3,
-    color: colors.textPrimary,
-    marginTop: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  leaderboardRow: {
+  enterBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.sm,
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#ffffff',
+    paddingVertical: 14,
+    borderRadius: glassTokens.radiusPill,
+    marginTop: spacing.md,
+  },
+  enterBtnText: {
+    ...typography.body,
+    color: '#0a0a0a',
+    fontWeight: '800',
+  },
+  enteredRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: spacing.md,
+    paddingVertical: 12,
+    paddingHorizontal: spacing.md,
+    backgroundColor: glassTokens.bgStrong,
+    borderRadius: glassTokens.radiusPill,
+    borderWidth: 1,
+    borderColor: glassTokens.borderStrong,
+  },
+  enteredText: {
+    ...typography.small,
+    color: colors.textPrimary,
+    fontWeight: '600',
+  },
+  metricsRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.lg,
+  },
+  metricBox: {
+    flex: 1,
+    paddingVertical: spacing.md,
+    borderRadius: glassTokens.radiusSm,
+    backgroundColor: glassTokens.bg,
+    borderWidth: 1,
+    borderColor: glassTokens.border,
+    alignItems: 'center',
+    gap: 4,
+  },
+  metricValue: {
+    ...typography.h3,
+    color: colors.textPrimary,
+  },
+  metricLabel: {
+    ...typography.tiny,
+    color: colors.textMuted,
+  },
+  leaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: glassTokens.border,
+  },
+  rankCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: glassTokens.bg,
+    borderWidth: 1,
+    borderColor: glassTokens.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rankCirclePodium: {
+    backgroundColor: '#ffffff',
+    borderColor: '#ffffff',
   },
   rankText: {
     ...typography.small,
-    color: colors.sand[0],
-    width: 40,
-    fontWeight: '700',
+    color: colors.textPrimary,
+    fontWeight: '800',
   },
   leaderName: {
     ...typography.body,
     color: colors.textPrimary,
-    flex: 1,
+    fontWeight: '600',
   },
-  leaderScore: {
+  leaderMeta: {
+    ...typography.tiny,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  viralIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: glassTokens.bgStrong,
+    borderWidth: 1,
+    borderColor: glassTokens.borderStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  viralTitle: {
     ...typography.body,
-    color: colors.textSecondary,
+    color: colors.textPrimary,
     fontWeight: '700',
+  },
+  viralBody: {
+    ...typography.small,
+    color: colors.textMuted,
+    marginTop: 4,
+    lineHeight: 18,
   },
 });

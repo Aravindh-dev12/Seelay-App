@@ -3,27 +3,27 @@ import React, { createContext, useContext } from 'react';
 export const colors = {
   // Gradient Black Base
   background: '#000000',
-  surface: '#0c0c10',
-  surfaceElevated: '#141418',
+  surface: '#0b0b0b',
+  surfaceElevated: '#121212',
   
-  // Gradient Accents
-  sand: ['#d4b896', '#b8956a', '#9a7b52'] as const,
-  ash: ['#6b6b6b', '#4a4a4a'] as const,
-  copper: ['#c4907a', '#a06b56'] as const,
-  sage: ['#7da88a', '#5a8a6a'] as const,
+  // Gradient Accents (Monochrome)
+  sand: ['#ffffff', '#d9d9d9', '#b3b3b3'] as const,
+  ash: ['#7f7f7f', '#404040'] as const,
+  copper: ['#f2f2f2', '#a6a6a6'] as const,
+  sage: ['#e6e6e6', '#8c8c8c'] as const,
   
   // Text
   textPrimary: '#ffffff',
-  textSecondary: '#b8b5b0',
-  textMuted: '#6b6864',
+  textSecondary: '#cccccc',
+  textMuted: '#7f7f7f',
   
   // Borders
-  border: 'rgba(255,255,255,0.06)',
-  borderActive: 'rgba(212,184,150,0.3)',
+  border: 'rgba(255,255,255,0.1)',
+  borderActive: 'rgba(255,255,255,0.5)',
   
   // Functional
-  error: '#c4907a',
-  success: '#7da88a',
+  error: '#ffffff',
+  success: '#ffffff',
 };
 
 export const gradients = {
@@ -32,7 +32,7 @@ export const gradients = {
   copper: { colors: colors.copper, start: { x: 0, y: 0 }, end: { x: 1, y: 1 } },
   sage: { colors: colors.sage, start: { x: 0, y: 0 }, end: { x: 1, y: 1 } },
   background: {
-    colors: ['#0f0f14', '#050508', '#000000'] as const,
+    colors: ['#080808', '#030303', '#000000'] as const,
     start: { x: 0.5, y: 0 },
     end: { x: 0.5, y: 1 },
   },
@@ -56,6 +56,19 @@ export const typography = {
   caption: { fontSize: 14, fontWeight: '400' as const },
   small: { fontSize: 12, fontWeight: '500' as const },
   tiny: { fontSize: 10, fontWeight: '600' as const, letterSpacing: 1 },
+  // Sacramento font for "SEELAY" heading only — script/cursive brand identity
+  title: {
+    fontSize: 48,
+    fontWeight: '400' as const,
+    fontFamily: 'Sacramento_400Regular',
+    letterSpacing: 1,
+  },
+  titleSmall: {
+    fontSize: 32,
+    fontWeight: '400' as const,
+    fontFamily: 'Sacramento_400Regular',
+    letterSpacing: 1,
+  },
 };
 
 export const shadows = {

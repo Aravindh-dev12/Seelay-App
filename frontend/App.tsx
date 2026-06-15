@@ -1,9 +1,8 @@
-import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Platform, ActivityIndicator } from 'react-native';
+import { useFonts } from 'expo-font';
 import RootNavigator from './src/navigation/RootNavigator';
 import { navigationRef } from './src/navigation/navigationRef';
 import { ThemeProvider } from './src/theme/ThemeProvider';
@@ -11,6 +10,22 @@ import { AuthProvider } from './src/auth/AuthContext';
 import { VisorProvider } from './src/visor/VisorContext';
 import SeelayVisor from './src/visor/SeelayVisor';
 import React from 'react';
+
+let GestureHandlerRootView: React.FC<{ style?: object | any; children: React.ReactNode }> = ({ children, style }: { style?: object | any; children: React.ReactNode }) => (
+  <View style={style}>{children}</View>
+);
+
+if (Platform.OS !== 'web') {
+  try {
+    const GestureHandler = require('react-native-gesture-handler');
+    GestureHandlerRootView = GestureHandler.GestureHandlerRootView;
+    if (GestureHandler.default?.initialize) {
+      GestureHandler.default.initialize();
+    }
+  } catch {
+    // fallback already set above
+  }
+}
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error?: Error }> {
   constructor(props: { children: React.ReactNode }) {
@@ -38,6 +53,18 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 }
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Sacramento_400Regular: require('./assets/fonts/Sacramento_400Regular.ttf'),
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator color="#ffffff" />
+      </View>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <GestureHandlerRootView style={styles.container}>

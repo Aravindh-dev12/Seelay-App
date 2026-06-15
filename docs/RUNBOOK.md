@@ -3,15 +3,38 @@
 ## Local Setup
 
 ```bash
+# Setup env
 cp .env.example .env
+
+# Install packages
 npm install
+
+# Run database & cache (Docker)
 docker compose up -d
+
+# Generate database client & run migrations
 npm run db:generate
 npm run db:migrate
+
+# Start frontend and backend concurrently
 npm run dev
 ```
 
-## Environment Checklist
+### Running Parts Individually
+
+- **Backend (API) Only**: `npm --workspace @seelay/api run dev`
+- **Frontend (Web PWA) Only**: `npm --workspace seelay-frontend run start`
+- **Mobile (Expo App) Only**: `cd mobile && npx expo start`
+
+## AI Engine Configuration
+
+- Local LLM: Install **Ollama** and run your preferred model (e.g. `gemma:2b`).
+- Cloud LLM fallback: Input your API key under `GEMINI_API_KEY` inside `.env` to fallback to Gemini when Ollama is offline.
+
+## Theme & Mascot
+
+- Palette: Strictly monochrome (Black, White, Silver, Grey). No yellow, gold, or copper gradients or borders.
+- Mascot: The Seelay TV capsule visor character handles gesture tracking, face-mesh scanning, and voice chat.
 
 - `DATABASE_URL`: PostgreSQL connection.
 - `REDIS_URL`: Redis connection.

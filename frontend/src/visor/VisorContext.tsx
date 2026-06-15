@@ -33,10 +33,12 @@ export function VisorProvider({ children }: { children: React.ReactNode }) {
   const [providerUsed, setProviderUsed] = useState<string | undefined>(undefined);
   const greetedRef = useRef(false);
   const historyRef = useRef<{ role: string; content: string }[]>([]);
+  const danceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const history = historyRef.current ?? [];
 
   const speak = useCallback((text: string) => {
-    setExpression('speaking');
+    const isDanceText = /dance|dancing|groove|move|step|shake/i.test(text);
+    setExpression(isDanceText ? 'dancing' : 'speaking');
     visorVoice.speak(text, () => setExpression('idle'));
   }, []);
 
@@ -96,9 +98,22 @@ export function VisorProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isSignedIn) return;
     simulatedGestures.start((event) => {
+      if (danceTimeoutRef.current) {
+        clearTimeout(danceTimeoutRef.current);
+      }
       setMessage(`Nice ${event.kind.toLowerCase().replace('_', ' ')}! I see you moving.`);
+      setExpression('dancing');
+      danceTimeoutRef.current = setTimeout(() => {
+        setExpression('idle');
+        danceTimeoutRef.current = null;
+      }, 3000);
     });
-    return () => simulatedGestures.stop();
+    return () => {
+      simulatedGestures.stop();
+      if (danceTimeoutRef.current) {
+        clearTimeout(danceTimeoutRef.current);
+      }
+    };
   }, [isSignedIn]);
 
   const value = useMemo(

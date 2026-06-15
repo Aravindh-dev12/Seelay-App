@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import ScreenContainer from '../../components/ScreenContainer';
 import Header from '../../components/Header';
@@ -34,15 +33,21 @@ export default function AlterEgoScreen() {
               {active ? 'Nobody knows it is you. Duel freely.' : 'Your public identity'}
             </Text>
           </View>
-          <TouchableOpacity onPress={toggleEgo} style={styles.toggleBtn}>
-            <LinearGradient
-              colors={active ? colors.sage : colors.ash}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.toggleGradient}
-            >
-              <Ionicons name={active ? 'checkmark' : 'close'} size={20} color="#0a0a0a" />
-            </LinearGradient>
+          <TouchableOpacity
+            onPress={toggleEgo}
+            style={[
+              styles.toggleBtn,
+              {
+                backgroundColor: active
+                  ? 'rgba(125,168,138,0.15)'
+                  : 'rgba(255,255,255,0.06)',
+                borderColor: active
+                  ? 'rgba(125,168,138,0.40)'
+                  : 'rgba(255,255,255,0.15)',
+              },
+            ]}
+          >
+            <Ionicons name={active ? 'checkmark' : 'close'} size={20} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -127,15 +132,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   toggleBtn: {
-    borderRadius: 14,
-    overflow: 'hidden',
-  },
-  toggleGradient: {
     width: 48,
     height: 48,
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
   },
   label: {
     ...typography.body,

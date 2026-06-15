@@ -16,20 +16,64 @@ This repository is a production-style full-stack scaffold covering the frontend,
 
 ## Quick Start
 
+### 1. Setup Environment
+Copy the example environment variables and edit the `.env` file with your credentials (e.g. your `GEMINI_API_KEY` for AI chatbot fallback):
 ```bash
 cp .env.example .env
-npm install
-docker compose up -d
-npm run db:generate
-npm run db:migrate
-npm run dev
 ```
 
-Frontend: `http://localhost:3000`
+### 2. Install Dependencies
+```bash
+npm install
+```
 
-API: `http://localhost:4000/health`
+### 3. Spin up PostgreSQL and Redis (Docker Compose)
+Ensure Docker is installed and running:
+```bash
+docker compose up -d
+```
 
-Mobile: `cd mobile && npx expo start`
+### 4. Database Initialization
+```bash
+# Generate the Prisma Client
+npm run db:generate
+
+# Run schema migrations
+npm run db:migrate
+```
+
+### 5. Running the Application
+
+#### To Run Both Frontend and Backend Concurrently:
+```bash
+npm run dev
+```
+- Web Frontend: `http://localhost:3000`
+- Backend API Server: `http://localhost:4000`
+
+#### To Run Backend (API) Only:
+```bash
+npm --workspace @seelay/api run dev
+```
+
+#### To Run Frontend (Web PWA) Only:
+```bash
+npm --workspace seelay-frontend run start
+```
+
+#### To Run Mobile (Expo) Application:
+```bash
+cd mobile && npx expo start
+```
+
+## AI Configuration (Ollama & Gemini)
+Seelay supports running local models on CPU via **Ollama** or calling cloud endpoints via **Gemini**.
+- **Ollama**: Install the Ollama application, run `ollama run gemma:2b`, and update `OLLAMA_MODEL` in your `.env`.
+- **Gemini**: Add your API key `GEMINI_API_KEY` inside `.env` to fallback automatically if Ollama is offline or not installed.
+
+## Visual Theme & Lay AI Character
+- **Monochrome Theme**: Seelay is updated with a strictly Black and White qanbie dark theme. No yellow, gold, or copper gradients are used.
+- **TV Capsule Mascot**: The floating Seelay mascot (Lay AI) has been redesigned as a horizontal pill TV outline capsule featuring physical limbs, arms waving on talking, and legs moving on drag.
 
 ## Core Product Coverage
 
