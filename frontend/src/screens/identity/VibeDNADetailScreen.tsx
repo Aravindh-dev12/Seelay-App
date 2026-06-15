@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import ScreenContainer from '../../components/ScreenContainer';
 import Header from '../../components/Header';
+import { GlassCard, glassTokens } from '../../components/Glass';
 import { colors, typography, spacing } from '../../theme';
 
 const { width } = Dimensions.get('window');
@@ -23,7 +23,7 @@ export default function VibeDNADetailScreen() {
       <Header title="Vibe DNA" showBack showSearch={false} showNotifications={false} />
 
       {/* DNA visual */}
-      <View style={styles.dnaCard}>
+      <GlassCard style={styles.dnaCard} padding={spacing.lg} elevated>
         <View style={styles.dnaHeader}>
           <Ionicons name="finger-print" size={28} color={colors.sand[0]} />
           <View style={{ marginLeft: spacing.sm }}>
@@ -33,22 +33,22 @@ export default function VibeDNADetailScreen() {
         </View>
 
         <View style={styles.dnaVisual}>
-          {DNA_STRANDS.map((strand, i) => (
+          {DNA_STRANDS.map((strand) => (
             <View key={strand.label} style={styles.strandRow}>
               <Text style={styles.strandLabel}>{strand.label}</Text>
               <View style={styles.strandTrack}>
-                <LinearGradient
-                  colors={[strand.color, colors.background]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={[styles.strandFill, { width: `${strand.value}%` }]}
+                <View
+                  style={[
+                    styles.strandFill,
+                    { width: `${strand.value}%`, backgroundColor: strand.color },
+                  ]}
                 />
               </View>
               <Text style={[styles.strandValue, { color: strand.color }]}>{strand.value}</Text>
             </View>
           ))}
         </View>
-      </View>
+      </GlassCard>
 
       {/* Compatibility */}
       <Text style={styles.sectionTitle}>Top DNA Matches</Text>
@@ -57,7 +57,7 @@ export default function VibeDNADetailScreen() {
         { name: 'Rohan Vibe', match: 86, campus: 'Mumbai' },
         { name: 'Priya Flow', match: 82, campus: 'Delhi' },
       ].map((user) => (
-        <View key={user.name} style={styles.matchRow}>
+        <GlassCard key={user.name} style={styles.matchRow} padding={spacing.md}>
           <View style={styles.matchAvatar}>
             <Ionicons name="person" size={18} color={colors.textSecondary} />
           </View>
@@ -65,10 +65,10 @@ export default function VibeDNADetailScreen() {
             <Text style={styles.matchName}>{user.name}</Text>
             <Text style={styles.matchCampus}>{user.campus}</Text>
           </View>
-          <View style={styles.matchBadge}>
+          <View style={[styles.matchBadge, { backgroundColor: glassTokens.bgStrong, borderColor: glassTokens.borderStrong }]}>
             <Text style={styles.matchBadgeText}>{user.match}%</Text>
           </View>
-        </View>
+        </GlassCard>
       ))}
 
       {/* Evolution timeline */}

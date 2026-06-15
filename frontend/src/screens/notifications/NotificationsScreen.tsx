@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenContainer from '../../components/ScreenContainer';
 import Header from '../../components/Header';
+import { GlassCard } from '../../components/Glass';
+import { api } from '../../api/client';
 import { colors, typography, spacing } from '../../theme';
 
-const NOTIFICATIONS = [
+const DEFAULT_NOTIFICATIONS = [
   { id: '1', type: 'like', text: 'Zara Alchemy liked your clip', time: '2m ago' },
   { id: '2', type: 'duel', text: 'Campus Duel is live now', time: '15m ago' },
   { id: '3', type: 'follow', text: 'Ravi Swarm started following you', time: '1h ago' },
@@ -13,14 +15,22 @@ const NOTIFICATIONS = [
 ];
 
 export default function NotificationsScreen() {
+  const [notifications, setNotifications] = useState(DEFAULT_NOTIFICATIONS);
+
+  useEffect(() => {
+    api.notifications().then((data: any) => {
+      if (Array.isArray(data) && data.length > 0) setNotifications(data);
+    }).catch(() => {});
+  }, []);
+
   return (
     <ScreenContainer>
       <Header title="Notifications" showBack showSearch={false} showNotifications={false} />
       <FlatList
-        data={NOTIFICATIONS}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.row}>
+        data={notifications}
+        keyExtractor={(item: any) => item.id}
+        renderItem={({ item }: { item: any }) => (
+          <GlassCard style={styles.row} padding={spacing.md}>
             <View style={styles.iconBox}>
               <Ionicons
                 name={
@@ -36,7 +46,7 @@ export default function NotificationsScreen() {
               <Text style={styles.text}>{item.text}</Text>
               <Text style={styles.time}>{item.time}</Text>
             </View>
-          </View>
+          </GlassCard>
         )}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}

@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 24,
     borderWidth: 1,
   },
   text: {

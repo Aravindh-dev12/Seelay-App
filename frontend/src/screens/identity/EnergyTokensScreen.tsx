@@ -1,31 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import ScreenContainer from '../../components/ScreenContainer';
 import Header from '../../components/Header';
 import GradientButton from '../../components/GradientButton';
+import { GlassCard, glassTokens } from '../../components/Glass';
+import { api } from '../../api/client';
 import { colors, typography, spacing } from '../../theme';
 
 export default function EnergyTokensScreen() {
+  const [balance, setBalance] = useState<number>(1240);
+  const [ledger, setLedger] = useState<Array<{ id: string; kind: string; amount: number; reason: string }>>([]);
+
+  useEffect(() => {
+    api.wallet().then((data: any) => {
+      if (data?.balance != null) setBalance(data.balance);
+      if (data?.ledger) setLedger(data.ledger);
+    }).catch(() => {});
+  }, []);
+
   return (
     <ScreenContainer>
       <Header title="Energy Tokens" showBack showSearch={false} showNotifications={false} />
 
       {/* Balance */}
-      <LinearGradient
-        colors={colors.sand}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.balanceCard}
-      >
-        <Text style={styles.balanceLabel}>Your Balance</Text>
-        <Text style={styles.balanceValue}>1,240</Text>
+      <GlassCard style={styles.balanceCard} padding={spacing.lg} elevated>
+        <Text style={[styles.balanceLabel, { color: colors.textMuted }]}>Your Balance</Text>
+        <Text style={[styles.balanceValue, { color: colors.textPrimary }]}>{balance.toLocaleString()}</Text>
         <View style={styles.balanceRow}>
-          <Ionicons name="flash" size={16} color="#0a0a0a" />
-          <Text style={styles.balanceSub}>Earned from 47 body movements</Text>
+          <Ionicons name="flash" size={16} color={colors.sand[0]} />
+          <Text style={[styles.balanceSub, { color: colors.textSecondary }]}>Earned from {ledger.length || 47} body movements</Text>
         </View>
-      </LinearGradient>
+      </GlassCard>
 
       {/* Earn */}
       <Text style={styles.sectionTitle}>Earn Tokens</Text>
@@ -60,7 +66,7 @@ export default function EnergyTokensScreen() {
           { icon: 'flash', label: 'Duel Entry', cost: 100 },
           { icon: 'heart', label: 'Match Unlock', cost: 300 },
         ].map((item) => (
-          <TouchableOpacity key={item.label} style={styles.spendCard}>
+          <TouchableOpacity key={item.label} activeOpacity={0.8} style={[styles.spendCard, { backgroundColor: glassTokens.bg, borderColor: glassTokens.border }]}>
             <Ionicons name={item.icon as any} size={28} color={colors.sand[0]} />
             <Text style={styles.spendLabel}>{item.label}</Text>
             <Text style={styles.spendCost}>{item.cost} tokens</Text>
@@ -70,14 +76,14 @@ export default function EnergyTokensScreen() {
 
       {/* Brand sponsors */}
       <Text style={styles.sectionTitle}>Brand Challenges</Text>
-      <View style={styles.brandCard}>
+      <GlassCard style={styles.brandCard} padding={spacing.md}>
         <View style={styles.brandHeader}>
           <Ionicons name="fitness" size={24} color={colors.sand[0]} />
           <Text style={styles.brandName}>Nike Move Challenge</Text>
         </View>
         <Text style={styles.brandSub}>Complete 100 jumps this week</Text>
         <GradientButton title="Claim 500 Bonus" onPress={() => {}} size="sm" variant="success" />
-      </View>
+      </GlassCard>
     </ScreenContainer>
   );
 }

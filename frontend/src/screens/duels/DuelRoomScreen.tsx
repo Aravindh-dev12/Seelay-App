@@ -5,10 +5,11 @@ import { useRoute } from '@react-navigation/native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Header from '../../components/Header';
 import GradientButton from '../../components/GradientButton';
+import { GlassCard, glassTokens } from '../../components/Glass';
 import { colors, typography, spacing } from '../../theme';
 
 export default function DuelRoomScreen() {
-  const route = useRoute<any>();
+  const route = useRoute();
   const [countdown, setCountdown] = useState(3);
   const [phase, setPhase] = useState<'countdown' | 'recording' | 'submit' | 'result'>('countdown');
   const [score, setScore] = useState(0);
@@ -36,10 +37,10 @@ export default function DuelRoomScreen() {
 
       {phase === 'recording' && (
         <View style={styles.center}>
-          <View style={styles.recordingIndicator}>
+          <GlassCard style={styles.recordingIndicator} padding={spacing.sm}>
             <View style={styles.recordingDot} />
             <Text style={styles.recordingText}>Recording</Text>
-          </View>
+          </GlassCard>
           <Text style={styles.timer}>00:45</Text>
           <GradientButton title="Submit Clip" onPress={() => setPhase('submit')} />
         </View>
@@ -80,10 +81,10 @@ export default function DuelRoomScreen() {
 
 function ResultMetric({ label, value }: { label: string; value: number }) {
   return (
-    <View style={styles.resultBox}>
+    <GlassCard style={styles.resultBox} padding={spacing.md}>
       <Text style={styles.resultLabel}>{label}</Text>
       <Text style={styles.resultValue}>{value}</Text>
-    </View>
+    </GlassCard>
   );
 }
 
@@ -107,10 +108,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(196,144,122,0.2)',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
     borderRadius: 20,
+    alignSelf: 'center',
   },
   recordingDot: {
     width: 12,
@@ -155,11 +154,6 @@ const styles = StyleSheet.create({
   },
   resultBox: {
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    padding: spacing.md,
     minWidth: 90,
   },
   resultLabel: {

@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import ScreenContainer from '../../components/ScreenContainer';
 import GradientButton from '../../components/GradientButton';
+import { GlassChip } from '../../components/Glass';
 import { colors, typography, spacing } from '../../theme';
 
 const FILTERS = ['Neon Raga', 'Campus Heat', 'Bass Bloom', 'Midnight Sand'];
@@ -60,13 +61,12 @@ export default function CreateScreen() {
           <View style={styles.bottomControls}>
             <View style={styles.filterRow}>
               {FILTERS.map((filter, i) => (
-                <TouchableOpacity
+                <GlassChip
                   key={filter}
+                  label={filter}
+                  active={i === selectedFilter}
                   onPress={() => setSelectedFilter(i)}
-                  style={[styles.filterChip, i === selectedFilter && styles.filterChipActive]}
-                >
-                  <Text style={[styles.filterText, i === selectedFilter && styles.filterTextActive]}>{filter}</Text>
-                </TouchableOpacity>
+                />
               ))}
             </View>
 
@@ -150,26 +150,8 @@ const styles = StyleSheet.create({
   filterRow: {
     flexDirection: 'row',
     gap: spacing.sm,
-  },
-  filterChip: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 8,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  filterChipActive: {
-    backgroundColor: 'rgba(212,184,150,0.2)',
-    borderColor: colors.sand[0],
-  },
-  filterText: {
-    ...typography.small,
-    color: colors.textSecondary,
-    fontWeight: '600',
-  },
-  filterTextActive: {
-    color: colors.sand[0],
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
   recordButton: {
     width: 72,

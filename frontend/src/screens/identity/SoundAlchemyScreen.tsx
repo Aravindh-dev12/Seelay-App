@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import ScreenContainer from '../../components/ScreenContainer';
 import Header from '../../components/Header';
+import { GlassCard, glassTokens } from '../../components/Glass';
 import { colors, typography, spacing } from '../../theme';
 
 const SOUND_MAP = [
@@ -29,20 +29,15 @@ export default function SoundAlchemyScreen() {
       <Header title="Sound Alchemy" showBack showSearch={false} showNotifications={false} />
 
       {/* Hero */}
-      <View style={styles.hero}>
-        <LinearGradient
-          colors={colors.copper}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.heroBadge}
-        >
-          <Ionicons name="musical-notes" size={18} color="#0a0a0a" />
-        </LinearGradient>
+      <GlassCard style={styles.hero} padding={spacing.lg} elevated>
+        <View style={[styles.heroBadge, { backgroundColor: glassTokens.bgStrong, borderColor: glassTokens.borderStrong }]}>
+          <Ionicons name="musical-notes" size={18} color={colors.sand[0]} />
+        </View>
         <Text style={styles.heroTitle}>Your Body Is the Instrument</Text>
         <Text style={styles.heroSub}>
           Every movement generates a unique audio track. Jump becomes bass. Wave becomes synth. No two clips sound the same.
         </Text>
-      </View>
+      </GlassCard>
 
       {/* Sound mapping */}
       <Text style={styles.sectionTitle}>Movement → Sound Map</Text>
@@ -71,7 +66,7 @@ export default function SoundAlchemyScreen() {
         { title: 'Wave Form', date: 'Yesterday', duration: '4.1s' },
         { title: 'Bass Runner', date: '3d ago', duration: '2.8s' },
       ].map((track) => (
-        <View key={track.title} style={styles.trackRow}>
+        <GlassCard key={track.title} style={styles.trackRow} padding={spacing.md}>
           <View style={styles.trackIcon}>
             <Ionicons name="play" size={16} color={colors.sand[0]} />
           </View>
@@ -80,7 +75,7 @@ export default function SoundAlchemyScreen() {
             <Text style={styles.trackMeta}>{track.date} · {track.duration}</Text>
           </View>
           <Ionicons name="share-outline" size={20} color={colors.textMuted} />
-        </View>
+        </GlassCard>
       ))}
     </ScreenContainer>
   );

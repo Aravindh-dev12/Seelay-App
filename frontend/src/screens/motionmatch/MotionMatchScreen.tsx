@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Header from '../../components/Header';
 import GradientButton from '../../components/GradientButton';
+import { GlassCard, glassTokens } from '../../components/Glass';
 import { colors, typography, spacing } from '../../theme';
 
 type Step = 'scan' | 'suggest' | 'duel' | 'heart' | 'chat';
@@ -70,7 +71,7 @@ export default function MotionMatchScreen() {
     return (
       <ScreenContainer>
         <Header title="Motion Match" showSearch={false} showNotifications={false} />
-        <View style={styles.matchOverlay}>
+        <GlassCard style={styles.matchOverlay} padding={spacing.lg} elevated>
           <Ionicons name="heart" size={64} color={colors.copper[0]} />
           <Text style={styles.matchTitle}>Connection Unlocked</Text>
           <Text style={styles.matchSub}>You both reacted with a heart during the duel</Text>
@@ -78,7 +79,7 @@ export default function MotionMatchScreen() {
             <GradientButton title="Start Chat" onPress={() => navigation.navigate('Chat', { chatId: 'match_1', participantName: match.displayName })} size="lg" />
             <GradientButton title="Duel Date" onPress={() => navigation.navigate('DuelRoom', { duelId: 'date_1' })} variant="secondary" size="lg" />
           </View>
-        </View>
+        </GlassCard>
       </ScreenContainer>
     );
   }
@@ -109,7 +110,7 @@ export default function MotionMatchScreen() {
       {/* Step content */}
       <View style={styles.content}>
         {step === 'scan' && (
-          <View style={styles.stepCard}>
+          <GlassCard style={styles.stepCard} padding={spacing.lg} elevated>
             <Ionicons name="scan-circle" size={48} color={colors.sand[0]} />
             <Text style={styles.stepTitle}>DNA Compatibility Scan</Text>
             <Text style={styles.stepBody}>
@@ -117,62 +118,64 @@ export default function MotionMatchScreen() {
             </Text>
             <View style={styles.traitsRow}>
               {match.dnaTraits.map((t) => (
-                <View key={t} style={styles.traitChip}>
+                <View key={t} style={[styles.traitChip, { backgroundColor: glassTokens.bgStrong, borderColor: glassTokens.borderStrong }]}>
                   <Text style={styles.traitText}>{t}</Text>
                 </View>
               ))}
             </View>
             <GradientButton title="Find Match" onPress={nextStep} size="lg" style={{ marginTop: spacing.lg }} />
-          </View>
+          </GlassCard>
         )}
 
         {step === 'suggest' && (
           <Animated.View style={[styles.stepCard, cardStyle]}>
-            <Text style={styles.stepTitle}>Match Found</Text>
-            <Text style={styles.stepBody}>No photo. No bio. Just movement.</Text>
-            <View style={styles.clipsBox}>
-              {match.clips.map((c) => (
-                <View key={c.id} style={styles.clipItem}>
-                  <Ionicons name="play-circle" size={20} color={colors.sand[0]} />
-                  <Text style={styles.clipTag}>{c.tag}</Text>
-                  <Text style={styles.clipDur}>{c.duration}</Text>
-                </View>
-              ))}
-            </View>
-            <View style={styles.compBadge}>
-              <Text style={styles.compLabel}>Vibe DNA Match</Text>
-              <Text style={styles.compValue}>{match.compatibility}%</Text>
-            </View>
-            <GradientButton title="Accept Duel Date" onPress={nextStep} size="lg" style={{ marginTop: spacing.lg }} />
+            <GlassCard style={{ width: '100%', alignItems: 'center' }} padding={spacing.lg} elevated>
+              <Text style={styles.stepTitle}>Match Found</Text>
+              <Text style={styles.stepBody}>No photo. No bio. Just movement.</Text>
+              <View style={styles.clipsBox}>
+                {match.clips.map((c) => (
+                  <View key={c.id} style={[styles.clipItem, { backgroundColor: glassTokens.bgSubtle, borderColor: glassTokens.border }]}>
+                    <Ionicons name="play-circle" size={20} color={colors.sand[0]} />
+                    <Text style={styles.clipTag}>{c.tag}</Text>
+                    <Text style={styles.clipDur}>{c.duration}</Text>
+                  </View>
+                ))}
+              </View>
+              <View style={[styles.compBadge, { backgroundColor: glassTokens.bgStrong, borderColor: glassTokens.borderStrong }]}>
+                <Text style={styles.compLabel}>Vibe DNA Match</Text>
+                <Text style={styles.compValue}>{match.compatibility}%</Text>
+              </View>
+              <GradientButton title="Accept Duel Date" onPress={nextStep} size="lg" style={{ marginTop: spacing.lg }} />
+            </GlassCard>
           </Animated.View>
         )}
 
         {step === 'duel' && (
-          <View style={styles.stepCard}>
+          <GlassCard style={styles.stepCard} padding={spacing.lg} elevated>
             <Ionicons name="flash" size={48} color={colors.sand[0]} />
             <Text style={styles.stepTitle}>Live Duel Challenge</Text>
             <Text style={styles.stepBody}>
               Both users enter a live duel with the same challenge simultaneously. This IS the first date — a shared experience.
             </Text>
-            <View style={styles.duelPreview}>
+            <View style={[styles.duelPreview, { backgroundColor: glassTokens.bgSubtle, borderColor: glassTokens.border }]}>
               <Text style={styles.duelTag}>Challenge: Mirror Wave</Text>
               <Text style={styles.duelSub}>60 seconds · Same beat · Both cameras on</Text>
             </View>
             <GradientButton title="Enter Live Duel" onPress={nextStep} size="lg" style={{ marginTop: spacing.lg }} />
-          </View>
+          </GlassCard>
         )}
 
         {step === 'heart' && (
-          <View style={styles.stepCard}>
+          <GlassCard style={styles.stepCard} padding={spacing.lg} elevated>
             <Text style={styles.stepTitle}>React with Heart</Text>
             <Text style={styles.stepBody}>
               Both see each other's movement before a single word is typed. If both react with a heart during the duel, chat unlocks.
             </Text>
-            <TouchableOpacity onPress={handleHeart} style={styles.heartBtnLarge}>
+            <TouchableOpacity onPress={handleHeart} activeOpacity={0.8} style={[styles.heartBtnLarge, { backgroundColor: glassTokens.bgStrong, borderColor: glassTokens.borderStrong }]}>
               <Ionicons name="heart" size={48} color={liked ? colors.copper[0] : colors.textSecondary} />
             </TouchableOpacity>
             <Text style={styles.hint}>Tap the heart if you felt the connection</Text>
-          </View>
+          </GlassCard>
         )}
       </View>
     </ScreenContainer>

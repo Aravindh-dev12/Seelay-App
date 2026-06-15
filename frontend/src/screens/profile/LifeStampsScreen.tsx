@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenContainer from '../../components/ScreenContainer';
 import Header from '../../components/Header';
+import { GlassCard, glassTokens } from '../../components/Glass';
 import { colors, typography, spacing } from '../../theme';
 
 const STAMPS = [
@@ -21,17 +22,17 @@ export default function LifeStampsScreen() {
       <Text style={styles.subtitle}>Collectible badges for your movement journey</Text>
       <FlatList
         data={STAMPS}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.stamp}>
-            <View style={styles.stampIcon}>
+        keyExtractor={(item: any) => item.id}
+        renderItem={({ item }: { item: any }) => (
+          <GlassCard style={styles.stamp} padding={spacing.md}>
+            <View style={[styles.stampIcon, { backgroundColor: glassTokens.bgStrong, borderColor: glassTokens.borderStrong }]}>
               <Ionicons name={item.icon as any} size={24} color={colors.sand[0]} />
             </View>
             <View style={styles.stampContent}>
               <Text style={styles.stampTitle}>{item.title}</Text>
               <Text style={styles.stampDate}>Earned on {item.date}</Text>
             </View>
-          </View>
+          </GlassCard>
         )}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}

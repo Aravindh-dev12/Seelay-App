@@ -1,16 +1,10 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
 import ScreenContainer from '../../components/ScreenContainer';
 import Header from '../../components/Header';
+import { GlassCard, GlassIconButton, glassTokens } from '../../components/Glass';
 import { colors, typography, spacing } from '../../theme';
 
 const MODULES = [
@@ -64,7 +58,7 @@ export default function IdentityHubScreen() {
       <Header title="Identity" showSearch={false} showNotifications={false} />
 
       {/* Profile mini-header */}
-      <View style={styles.profileCard}>
+      <GlassCard style={styles.profileCard} padding={spacing.md}>
         <View style={styles.avatar}>
           <Ionicons name="person" size={36} color={colors.textSecondary} />
         </View>
@@ -72,10 +66,8 @@ export default function IdentityHubScreen() {
           <Text style={styles.name}>Mira Kalyani</Text>
           <Text style={styles.handle}>@mira.kalyani · Bengaluru</Text>
         </View>
-        <TouchableOpacity style={styles.editBtn}>
-          <Ionicons name="create-outline" size={18} color={colors.textSecondary} />
-        </TouchableOpacity>
-      </View>
+        <GlassIconButton icon="create-outline" size={40} style={{ marginLeft: 'auto' }} />
+      </GlassCard>
 
       {/* Quick stats */}
       <View style={styles.statsRow}>
@@ -91,17 +83,13 @@ export default function IdentityHubScreen() {
         {MODULES.map((mod) => (
           <TouchableOpacity
             key={mod.id}
+            activeOpacity={0.8}
             style={styles.gridItem}
             onPress={() => navigation.navigate(mod.screen)}
           >
-            <LinearGradient
-              colors={mod.gradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.gridIconBg}
-            >
-              <Ionicons name={mod.icon as any} size={22} color="#0a0a0a" />
-            </LinearGradient>
+            <View style={[styles.gridIconBg, { backgroundColor: glassTokens.bgStrong, borderColor: glassTokens.borderStrong }]}>
+              <Ionicons name={mod.icon as any} size={22} color={colors.sand[0]} />
+            </View>
             <Text style={styles.gridTitle}>{mod.title}</Text>
             <Text style={styles.gridSub}>{mod.sub}</Text>
           </TouchableOpacity>
@@ -118,7 +106,7 @@ export default function IdentityHubScreen() {
           { icon: 'heart', title: 'Match Made', color: colors.copper[0] },
           { icon: 'time', title: '7-Day Streak', color: colors.sand[0] },
         ].map((stamp, i) => (
-          <View key={i} style={styles.stampChip}>
+          <View key={i} style={[styles.stampChip, { backgroundColor: glassTokens.bg, borderColor: glassTokens.border }]}>
             <Ionicons name={stamp.icon as any} size={18} color={stamp.color} />
             <Text style={styles.stampChipText}>{stamp.title}</Text>
           </View>

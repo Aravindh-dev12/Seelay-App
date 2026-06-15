@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
 import Header from '../../components/Header';
+import { GlassIconButton, glassTokens } from '../../components/Glass';
 import { colors, typography, spacing } from '../../theme';
 
 interface Message {
@@ -12,8 +13,8 @@ interface Message {
 }
 
 export default function ChatScreen() {
-  const route = useRoute<any>();
-  const { participantName } = route.params;
+  const route = useRoute();
+  const { participantName } = route.params as any;
   const [messages, setMessages] = useState<Message[]>([
     { id: '1', sender: 'them', body: 'Hey, love your moves!' },
     { id: '2', sender: 'me', body: 'Thanks! That duel was intense' },
@@ -32,8 +33,8 @@ export default function ChatScreen() {
       <Header title={participantName} showBack showSearch={false} showNotifications={false} />
       <FlatList
         data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        keyExtractor={(item: Message) => item.id}
+        renderItem={({ item }: { item: Message }) => (
           <View style={[styles.bubble, item.sender === 'me' ? styles.bubbleMe : styles.bubbleThem]}>
             <Text style={item.sender === 'me' ? styles.bubbleTextMe : styles.bubbleTextThem}>{item.body}</Text>
           </View>
@@ -50,9 +51,7 @@ export default function ChatScreen() {
           style={styles.input}
           onSubmitEditing={sendMessage}
         />
-        <TouchableOpacity onPress={sendMessage} style={styles.sendBtn}>
-          <Ionicons name="send" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <GlassIconButton icon="send" onPress={sendMessage} size={44} />
       </View>
     </KeyboardAvoidingView>
   );
@@ -115,7 +114,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(212,184,150,0.2)',
+    backgroundColor: glassTokens.bgStrong,
     justifyContent: 'center',
     alignItems: 'center',
   },

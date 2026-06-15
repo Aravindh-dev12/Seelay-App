@@ -29,15 +29,17 @@ export const glassTokens = {
 };
 
 interface GlassCardProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   padding?: number;
   elevated?: boolean;
+  testID?: string;
 }
 
-export function GlassCard({ children, style, padding = spacing.md, elevated }: GlassCardProps) {
+export function GlassCard({ children, style, padding = spacing.md, elevated, testID }: GlassCardProps) {
   return (
     <View
+      testID={testID}
       style={[
         styles.card,
         elevated && styles.cardElevated,
@@ -86,11 +88,13 @@ interface GlassIconButtonProps {
   active?: boolean;
   badge?: number;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
-export function GlassIconButton({ icon, onPress, size = 44, active, badge, style }: GlassIconButtonProps) {
+export function GlassIconButton({ icon, onPress, size = 44, active, badge, style, testID }: GlassIconButtonProps) {
   return (
     <TouchableOpacity
+      testID={testID}
       activeOpacity={0.8}
       onPress={onPress}
       style={[

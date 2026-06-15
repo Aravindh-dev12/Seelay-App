@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Header from '../../components/Header';
+import { GlassCard } from '../../components/Glass';
+import { api } from '../../api/client';
 import { colors, typography, spacing } from '../../theme';
 
 interface ChatSummary {
@@ -18,11 +20,9 @@ export default function InboxScreen() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const mock: ChatSummary[] = [
-      { id: 'chat_1', participant: { displayName: 'Zara Alchemy', username: 'zara.alchemy' }, lastMessage: 'That duel was fire!', unreadCount: 2 },
-      { id: 'chat_2', participant: { displayName: 'Ravi Swarm', username: 'ravi.swarm' }, lastMessage: 'Check out my new clip', unreadCount: 0 },
-    ];
-    setChats(mock);
+    api.chats().then((data: any) => {
+      if (Array.isArray(data) && data.length > 0) setChats(data);
+    }).catch(() => {});
   }, []);
 
   return (
@@ -33,21 +33,24 @@ export default function InboxScreen() {
         keyExtractor={(item: ChatSummary) => item.id}
         renderItem={({ item }: { item: ChatSummary }) => (
           <TouchableOpacity
-            style={styles.chatRow}
-            onPress={() => navigation.navigate('Chat', { chatId: item.id, participantName: item.participant.displayName })}
+            activeOpacity={0.8}
+            style={{ marginBottom: 8 }}
+            onPress={() => navigation.navigate('Chat', { chatId: item.id, participantName: item.participant?.displayName ?? 'Chat' })}
           >
-            <View style={styles.avatar}>
-              <Ionicons name="person" size={24} color={colors.textSecondary} />
-            </View>
-            <View style={styles.chatContent}>
-              <Text style={styles.chatName}>{item.participant.displayName}</Text>
-              <Text style={styles.chatPreview}>{item.lastMessage}</Text>
-            </View>
-            {item.unreadCount > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{item.unreadCount}</Text>
+            <GlassCard style={styles.chatRow} padding={spacing.md}>
+              <View style={styles.avatar}>
+                <Ionicons name="person" size={24} color={colors.textSecondary} />
               </View>
-            )}
+              <View style={styles.chatContent}>
+                <Text style={styles.chatName}>{item.participant?.displayName ?? 'User'}</Text>
+                <Text style={styles.chatPreview}>{item.lastMessage}</Text>
+              </View>
+              {item.unreadCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{item.unreadCount}</Text>
+                </View>
+              )}
+            </GlassCard>
           </TouchableOpacity>
         )}
         contentContainerStyle={styles.list}
